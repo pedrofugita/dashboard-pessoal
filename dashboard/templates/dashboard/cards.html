@@ -1,12 +1,89 @@
+<div class="col-12 mb-4">
+    <div class="card bg-dark border-secondary">
+        <div class="card-header border-secondary text-white d-flex justify-content-between">
+            <span><i class="bi bi-motherboard-fill me-2"></i> Meu PC</span>
+            <small class="text-muted">Atualizado em tempo real</small>
+        </div>
+        <div class="card-body">
+            
+            <div class="row text-white">
+                
+                <div class="col-md-6 mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span><i class="bi bi-cpu me-1"></i> Processador</span>
+                        <span class="fw-bold">{{ sistema.cpu }}%</span>
+                    </div>
+                    <div class="progress bg-secondary" style="height: 8px;">
+                        <div class="progress-bar {% if sistema.cpu > 80 %}bg-danger{% else %}bg-info{% endif %}" 
+                             role="progressbar" style="width: {{ sistema.cpu }}%"></div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span><i class="bi bi-memory me-1"></i> Memória RAM</span>
+                        <span class="fw-bold">{{ sistema.ram_used }}GB <span class="text-muted fw-normal">/ {{ sistema.ram_total }}GB</span></span>
+                    </div>
+                    <div class="progress bg-secondary" style="height: 8px;">
+                        <div class="progress-bar bg-purple" role="progressbar" 
+                             style="width: {{ sistema.ram_percent }}%; background-color: #d63384;"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <hr class="border-secondary my-2">
+
+            <div class="row text-white mt-3">
+                {% for disco in sistema.discos %}
+                <div class="col-md-6 mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>
+                            <i class="bi bi-hdd-fill me-1"></i> {{ disco.tipo }} ({{ disco.letra }})
+                        </span>
+                        <span class="small">{{ disco.percent }}% Cheio</span>
+                    </div>
+                    <div class="progress bg-secondary" style="height: 8px;">
+                        <div class="progress-bar {% if disco.percent > 90 %}bg-danger{% else %}bg-success{% endif %}" 
+                             role="progressbar" style="width: {{ disco.percent }}%"></div>
+                    </div>
+                    <small class="text-muted" style="font-size: 0.7rem;">Capacidade Total: {{ disco.total }} GB</small>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if sistema.gpu %}
+            <hr class="border-secondary my-2">
+            <div class="row text-white mt-3">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-warning"><i class="bi bi-gpu-card me-1"></i> {{ sistema.gpu.nome }}</span>
+                        <span>
+                            <i class="bi bi-thermometer-half"></i> {{ sistema.gpu.temp }}°C
+                        </span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-2" style="font-size: 0.8rem;">
+                        <span>Uso da GPU: {{ sistema.gpu.load }}%</span>
+                        <span>VRAM: {{ sistema.gpu.mem_used }}GB / {{ sistema.gpu.mem_total }}GB</span>
+                    </div>
+                    <div class="progress bg-secondary mt-1" style="height: 8px;">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ sistema.gpu.load }}%"></div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+<hr class="border-secondary my-4">
+
 {% if cryptos %}
     {% endif %}
-
 {% for moeda in cryptos %}
-
-<div class="col-md-4 mb-4" 
-     style="cursor: pointer;"
-     onclick="mudarGrafico('{{ moeda.name }}', {{ moeda.sparkline_in_7d.price }}, '{% if moeda.price_change_percentage_24h > 0 %}#198754{% else %}#dc3545{% endif %}')">
-    
+    <div class="col-md-4 mb-4" style="cursor: pointer;" onclick="mudarGrafico('{{ moeda.name }}', {{ moeda.sparkline_in_7d.price }}, '{% if moeda.price_change_percentage_24h > 0 %}#198754{% else %}#dc3545{% endif %}')">
     <div class="card bg-dark text-light border-secondary h-100 shadow-sm hover-effect">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -14,31 +91,18 @@
                     <img src="{{ moeda.image }}" alt="{{ moeda.name }}" width="30" class="me-2">
                     <h5 class="card-title mb-0">{{ moeda.symbol|upper }}</h5>
                 </div>
-                
                 {% if moeda.price_change_percentage_24h > 0 %}
-                    <span class="badge bg-success">
-                        ▲ {{ moeda.price_change_percentage_24h|floatformat:2 }}%
-                    </span>
+                    <span class="badge bg-success">▲ {{ moeda.price_change_percentage_24h|floatformat:2 }}%</span>
                 {% else %}
-                    <span class="badge bg-danger">
-                        ▼ {{ moeda.price_change_percentage_24h|floatformat:2 }}%
-                    </span>
+                    <span class="badge bg-danger">▼ {{ moeda.price_change_percentage_24h|floatformat:2 }}%</span>
                 {% endif %}
             </div>
-            
             <h3 class="mt-3 mb-0">US$ {{ moeda.current_price|floatformat:2 }}</h3>
-            
-            <small class="text-secondary">
-                ≈ R$ {{ moeda.preco_brl|floatformat:2 }}
-            </small>
-
+            <small class="text-secondary">≈ R$ {{ moeda.preco_brl|floatformat:2 }}</small>
             <p class="text-muted small mt-2 mb-0">{{ moeda.name }}</p>
         </div>
     </div>
-</div>
-
-{% empty %}
-    <div class="col-12">
-        <div class="alert alert-warning">Carregando dados...</div>
     </div>
+{% empty %}
+    <div class="col-12"><div class="alert alert-warning">Carregando...</div></div>
 {% endfor %}
