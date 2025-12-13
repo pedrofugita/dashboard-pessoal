@@ -135,7 +135,8 @@ def buscar_dados_completos():
         for moeda in dados['cryptos']: moeda['preco_brl'] = moeda['current_price'] * valor_dolar
         dados['dolar'] = valor_dolar
 
-        lat = "-23.5505"; lng = "-46.6333"
+        lat = os.getenv('MY_LAT')
+        lng = os.getenv('MY_LNG')
         url_clima = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lng}&current=temperature_2m,weather_code&timezone=America%2FSao_Paulo"
         clima_json = requests.get(url_clima).json()
         dados['clima'] = {'temp': clima_json['current']['temperature_2m'], 'codigo': clima_json['current']['weather_code']}
