@@ -12,6 +12,68 @@
     <script src="https://unpkg.com/htmx.org@1.9.6"></script>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .btn-launcher {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(33, 37, 41, 0.8); /* Fundo escuro leve */
+            color: #fff;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-decoration: none;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-launcher:hover {
+            transform: translateY(-5px); /* Levanta um pouco */
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .btn-launcher i {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        /* CORES ESPECÍFICAS (TEXTO E BRILHO) */
+        .neon-green { color: #198754; }
+        .neon-green:hover { 
+            color: #20c997; 
+            box-shadow: 0 0 15px rgba(32, 201, 151, 0.4); 
+            border-color: #20c997;
+        }
+
+        .neon-red { color: #dc3545; }
+        .neon-red:hover { 
+            color: #ff6b6b; 
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.4); 
+            border-color: #ff6b6b;
+        }
+
+        .neon-blue { color: #0dcaf0; }
+        .neon-blue:hover { 
+            color: #4dabf7; 
+            box-shadow: 0 0 15px rgba(77, 171, 247, 0.4); 
+            border-color: #4dabf7;
+        }
+
+        .neon-purple { color: #d63384; }
+        .neon-purple:hover { 
+            color: #f06595; 
+            box-shadow: 0 0 15px rgba(240, 101, 149, 0.4); 
+            border-color: #f06595;
+        }
+        
+        .neon-orange { color: #fd7e14; }
+        .neon-orange:hover { 
+            color: #ff922b; 
+            box-shadow: 0 0 15px rgba(255, 146, 43, 0.4); 
+            border-color: #ff922b;
+        }
+    </style>
 </head>
 <body class="bg-dark text-white">
 
@@ -92,50 +154,106 @@
         </div>
 
         <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="card bg-dark border-secondary shadow">
-                            <div class="card-header border-secondary">
-                                <i class="bi bi-keyboard-fill"></i> Stream Deck Pobre
+            <div class="col-12">
+                <div class="card bg-dark border-secondary shadow">
+                    <div class="card-header border-secondary">
+                        <i class="bi bi-keyboard-fill"></i> Stream Deck Pobre
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            
+                            <div class="col-md-4 d-grid gap-2">
+                                <span class="text-muted small text-center">Apps</span>
+                                <button class="btn btn-outline-light" hx-get="/comando/calc" hx-swap="none">
+                                    <i class="bi bi-calculator"></i> Calc
+                                </button>
+                                <button class="btn btn-outline-light" hx-get="/comando/notepad" hx-swap="none">
+                                    <i class="bi bi-file-text"></i> Bloco de Notas
+                                </button>
                             </div>
-                            <div class="card-body">
-                                <div class="row g-2">
-                                    
-                                    <div class="col-md-4 d-grid gap-2">
-                                        <span class="text-muted small text-center">Apps</span>
-                                        <button class="btn btn-outline-light" hx-get="/comando/calc" hx-swap="none">
-                                            <i class="bi bi-calculator"></i> Calc
-                                        </button>
-                                        <button class="btn btn-outline-light" hx-get="/comando/notepad" hx-swap="none">
-                                            <i class="bi bi-file-text"></i> Bloco de Notas
-                                        </button>
-                                    </div>
 
-                                    <div class="col-md-4 d-grid gap-2">
-                                        <span class="text-muted small text-center">Mídia</span>
-                                        <div class="btn-group">
-                                            <button class="btn btn-outline-info" hx-get="/comando/prev" hx-swap="none"><i class="bi bi-skip-backward-fill"></i></button>
-                                            <button class="btn btn-outline-info" hx-get="/comando/play" hx-swap="none"><i class="bi bi-play-circle-fill"></i></button>
-                                            <button class="btn btn-outline-info" hx-get="/comando/next" hx-swap="none"><i class="bi bi-skip-forward-fill"></i></button>
-                                        </div>
-                                        <button class="btn btn-outline-warning" hx-get="/comando/explorer" hx-swap="none">
-                                            <i class="bi bi-folder2-open"></i> Arquivos
-                                        </button>
-                                    </div>
+                            <div class="col-md-4 d-grid gap-2">
+                                <span class="text-muted small text-center">Mídia</span>
+                                <div class="btn-group">
+                                    <button class="btn btn-outline-info" hx-get="/comando/prev" hx-swap="none"><i class="bi bi-skip-backward-fill"></i></button>
+                                    <button class="btn btn-outline-info" hx-get="/comando/play" hx-swap="none"><i class="bi bi-play-circle-fill"></i></button>
+                                    <button class="btn btn-outline-info" hx-get="/comando/next" hx-swap="none"><i class="bi bi-skip-forward-fill"></i></button>
+                                </div>
+                                <button class="btn btn-outline-warning" hx-get="/comando/explorer" hx-swap="none">
+                                    <i class="bi bi-folder2-open"></i> Arquivos
+                                </button>
+                            </div>
 
-                                    <div class="col-md-4 d-grid gap-2">
-                                        <span class="text-muted small text-center">Volume</span>
-                                        <div class="btn-group">
-                                            <button class="btn btn-outline-danger" hx-get="/comando/vol_down" hx-swap="none"><i class="bi bi-volume-down-fill"></i></button>
-                                            <button class="btn btn-outline-danger" hx-get="/comando/mute" hx-swap="none"><i class="bi bi-volume-mute-fill"></i></button>
-                                            <button class="btn btn-outline-success" hx-get="/comando/vol_up" hx-swap="none"><i class="bi bi-volume-up-fill"></i></button>
-                                        </div>
-                                    </div>
-
+                            <div class="col-md-4 d-grid gap-2">
+                                <span class="text-muted small text-center">Volume</span>
+                                <div class="btn-group">
+                                    <button class="btn btn-outline-danger" hx-get="/comando/vol_down" hx-swap="none"><i class="bi bi-volume-down-fill"></i></button>
+                                    <button class="btn btn-outline-danger" hx-get="/comando/mute" hx-swap="none"><i class="bi bi-volume-mute-fill"></i></button>
+                                    <button class="btn btn-outline-success" hx-get="/comando/vol_up" hx-swap="none"><i class="bi bi-volume-up-fill"></i></button>
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card bg-dark border-secondary shadow">
+                    <div class="card-header border-secondary d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-rocket-takeoff-fill text-primary"></i> Central de Lançamento</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            
+                            <div class="col-4 col-md-2">
+                                <a href="https://chat.openai.com" target="_blank" class="btn-launcher neon-green">
+                                    <i class="bi bi-robot"></i>
+                                    <span class="small fw-bold">ChatGPT</span>
+                                </a>
+                            </div>
+
+                            <div class="col-4 col-md-2">
+                                <a href="https://www2.unesp.br/portal#!/area-do-aluno" target="_blank" class="btn-launcher neon-blue">
+                                    <i class="bi bi-mortarboard-fill"></i>
+                                    <span class="small fw-bold">Unesp</span>
+                                </a>
+                            </div>
+
+                            <div class="col-4 col-md-2">
+                                <a href="https://youtube.com" target="_blank" class="btn-launcher neon-red">
+                                    <i class="bi bi-youtube"></i>
+                                    <span class="small fw-bold">YouTube</span>
+                                </a>
+                            </div>
+
+                            <div class="col-4 col-md-2">
+                                <a href="https://mail.google.com" target="_blank" class="btn-launcher neon-red">
+                                    <i class="bi bi-envelope-fill"></i>
+                                    <span class="small fw-bold">Gmail</span>
+                                </a>
+                            </div>
+
+                            <div class="col-4 col-md-2">
+                                <a href="https://github.com" target="_blank" class="btn-launcher neon-purple">
+                                    <i class="bi bi-github"></i>
+                                    <span class="small fw-bold">GitHub</span>
+                                </a>
+                            </div>
+
+                            <div class="col-4 col-md-2">
+                                <a href="https://web.whatsapp.com" target="_blank" class="btn-launcher neon-green">
+                                    <i class="bi bi-whatsapp"></i>
+                                    <span class="small fw-bold">WhatsApp</span>
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>

@@ -7,19 +7,17 @@ import subprocess
 import re
 import time
 import os
+from dotenv import load_dotenv
 import pyautogui
-# --- NOVAS IMPORTAÇÕES ---
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-# ==========================================================
-# ⚠️ COLOQUE SUAS CHAVES AQUI (Do site Developer Spotify)
-# ==========================================================
-SPOTIPY_CLIENT_ID = 'ba4b29371c4848769476897489c0ec0f'
-SPOTIPY_CLIENT_SECRET = 'c6c42055fa724d3ab13d75197e6bb7c8'
-SPOTIPY_REDIRECT_URI = 'http://127.0.0.1:8000/callback'
+load_dotenv() # <--- Isso lê o arquivo .env
+SPOTIPY_CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
+SPOTIPY_CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
+SPOTIPY_REDIRECT_URI = os.getenv('SPOTIPY_REDIRECT_URI')
 
-# Configuração de Autenticação (Escopos: Ler o que toca e Controlar)
+# Configuração de Autenticação
 scope = "user-read-playback-state user-modify-playback-state"
 
 # Cria o objeto de autenticação globalmente
@@ -43,7 +41,7 @@ def buscar_dados_completos():
     }
     
     try:
-        # --- 1. SPOTIFY API (NOVO) ---
+        # --- 1. SPOTIFY API ---
         try:
             current = sp.current_playback()
             if current and current.get('item'):
