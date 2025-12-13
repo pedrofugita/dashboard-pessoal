@@ -4,7 +4,9 @@ import psutil
 import pynvml
 import subprocess
 import re
-import time 
+import time
+import pyautogui
+from django.http import HttpResponse 
 
 def buscar_dados_completos():
     dados = {
@@ -152,3 +154,44 @@ def home(request):
 def atualizar_valores(request):
     info = buscar_dados_completos()
     return render(request, 'dashboard/cards.html', info)
+
+# --- FUNÇÃO DO STREAM DECK ---
+def executar_acao(request, comando):
+    try:
+        # Comandos de Sistema
+        if comando == 'calc':
+            subprocess.Popen('calc.exe') # Abre Calculadora (sem travar o servidor)
+
+        elif comando == 'notepad':
+            subprocess.Popen('notepad.exe') # Abre Bloco de Notas
+
+        elif comando == 'explorer':
+            subprocess.Popen('explorer.exe') # Abre o Explorador de Arquivos
+
+        # Comandos de Áudio/Mídia (PyAutoGUI)
+        elif comando == 'vol_up':
+            pyautogui.press('volumeup') # Aumenta Volume
+            pyautogui.press('volumeup') # (2x para ir mais rápido)
+
+        elif comando == 'vol_down':
+            pyautogui.press('volumedown') # Abaixa Volume
+            pyautogui.press('volumedown')
+
+        elif comando == 'mute':
+            pyautogui.press('volumemute') # Muta
+
+        elif comando == 'play':
+            pyautogui.press('playpause') # Play/Pause (Spotify/YouTube)
+
+        elif comando == 'next':
+            pyautogui.press('nexttrack') # Próxima música
+
+        elif comando == 'prev':
+            pyautogui.press('prevtrack') # Música anterior
+
+    except Exception as e:
+        print(f"Erro ao executar comando: {e}")
+
+    # Retorna um código 204 (No Content), ou seja:
+    # "Fiz o que você pediu, não precisa mudar nada na tela."
+    return HttpResponse(status=204)

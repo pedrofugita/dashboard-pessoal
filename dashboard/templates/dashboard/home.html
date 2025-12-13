@@ -90,6 +90,52 @@
         <div class="text-center mt-4 mb-5 text-muted small">
             <i class="bi bi-arrow-repeat"></i> Atualizando dados em tempo real (10s)
         </div>
+
+        <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card bg-dark border-secondary shadow">
+                            <div class="card-header border-secondary">
+                                <i class="bi bi-keyboard-fill"></i> Stream Deck Pobre
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-2">
+                                    
+                                    <div class="col-md-4 d-grid gap-2">
+                                        <span class="text-muted small text-center">Apps</span>
+                                        <button class="btn btn-outline-light" hx-get="/comando/calc" hx-swap="none">
+                                            <i class="bi bi-calculator"></i> Calc
+                                        </button>
+                                        <button class="btn btn-outline-light" hx-get="/comando/notepad" hx-swap="none">
+                                            <i class="bi bi-file-text"></i> Bloco de Notas
+                                        </button>
+                                    </div>
+
+                                    <div class="col-md-4 d-grid gap-2">
+                                        <span class="text-muted small text-center">Mídia</span>
+                                        <div class="btn-group">
+                                            <button class="btn btn-outline-info" hx-get="/comando/prev" hx-swap="none"><i class="bi bi-skip-backward-fill"></i></button>
+                                            <button class="btn btn-outline-info" hx-get="/comando/play" hx-swap="none"><i class="bi bi-play-circle-fill"></i></button>
+                                            <button class="btn btn-outline-info" hx-get="/comando/next" hx-swap="none"><i class="bi bi-skip-forward-fill"></i></button>
+                                        </div>
+                                        <button class="btn btn-outline-warning" hx-get="/comando/explorer" hx-swap="none">
+                                            <i class="bi bi-folder2-open"></i> Arquivos
+                                        </button>
+                                    </div>
+
+                                    <div class="col-md-4 d-grid gap-2">
+                                        <span class="text-muted small text-center">Volume</span>
+                                        <div class="btn-group">
+                                            <button class="btn btn-outline-danger" hx-get="/comando/vol_down" hx-swap="none"><i class="bi bi-volume-down-fill"></i></button>
+                                            <button class="btn btn-outline-danger" hx-get="/comando/mute" hx-swap="none"><i class="bi bi-volume-mute-fill"></i></button>
+                                            <button class="btn btn-outline-success" hx-get="/comando/vol_up" hx-swap="none"><i class="bi bi-volume-up-fill"></i></button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
     </div>
 
     <script>
