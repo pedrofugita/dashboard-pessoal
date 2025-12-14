@@ -3,90 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CMD CENTER</title>
+    <title>CMD CENTER // SYSTEM OVERRIDE</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://unpkg.com/htmx.org@1.9.6"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
-            --neon-blue: #ff0000;
+            --neon-cyan: #00f3ff;
             --neon-purple: #bc13fe;
-            --neon-yellow: #fcd34d; /* Cor nova para o clima */
+            --neon-pink: #ff0055;
+            --neon-green: #0aff0a;
+            --neon-yellow: #fcd34d;
             --bg-dark: #050505;
-            --glass: rgba(20, 20, 25, 0.9);
+            
+            /* Glassmorphism Variables */
+            --glass-bg: rgba(20, 20, 20, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-blur: 12px;
         }
 
         body {
             background-color: var(--bg-dark);
-            color: #fff;
+            color: #e0e0e0;
             font-family: 'Rajdhani', sans-serif;
             height: 100vh;
             margin: 0;
             overflow: hidden;
+            /* Fundo Grid Tech */
             background-image: 
-                linear-gradient(rgba(188, 19, 254, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(188, 19, 254, 0.05) 1px, transparent 1px);
-            background-size: 40px 40px;
+                linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
         }
 
+        /* === TIPOGRAFIA === */
+        h1, h2, h3, h4, h5, .label-tech { font-family: 'Orbitron', sans-serif; letter-spacing: 1px; }
+        .val-tech, .num-mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* === LAYOUT BENTO BOX === */
         .main-grid {
             display: grid;
-            grid-template-columns: 250px 1fr;
+            grid-template-columns: 280px 1fr; /* Lateral levemente mais larga */
             grid-template-rows: 100%;
-            gap: 15px;
+            gap: 20px; /* Gap consistente */
             height: 100vh;
-            padding: 15px;
+            padding: 20px;
             box-sizing: border-box;
         }
 
-        .hud-card {
-            background: rgba(10, 10, 15, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-left: 2px solid var(--neon-blue);
-            border-radius: 4px;
-            backdrop-filter: blur(8px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        /* === GLASSMORPHISM CARDS === */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--glass-border);
+            border-radius: 12px; /* Mais arredondado */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+        
+        .glass-panel:hover {
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
-        .label-tech { font-size: 0.65rem; color: var(--neon-blue); text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-bottom: 4px; display: block; }
+        /* Labels e Botões */
+        .label-tech { 
+            font-size: 0.6rem; 
+            color: rgba(255,255,255,0.5); 
+            text-transform: uppercase; 
+            margin-bottom: 8px; 
+            display: block; 
+        }
         
         .btn-launch {
-            background: rgba(255,255,255,0.02);
+            background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.05);
             color: #aaa;
             text-decoration: none;
-            padding: 6px 10px;
-            font-size: 0.9rem;
+            padding: 10px 15px;
+            font-size: 0.85rem;
             display: flex;
             align-items: center;
-            border-radius: 4px;
+            border-radius: 6px;
             transition: all 0.2s;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
         }
         .btn-launch:hover {
-            border-color: var(--neon-purple);
+            border-color: var(--neon-cyan);
             color: #fff;
-            background: rgba(188, 19, 254, 0.1);
-            transform: translateX(5px);
+            background: rgba(0, 243, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.1);
+            transform: translateX(3px);
         }
-        .btn-launch i { margin-right: 10px; width: 15px; text-align: center; color: var(--neon-blue); }
 
-        .btn-audio-ctrl {
-            font-size: 0.8rem;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(0,0,0,0.3);
-            color: #ccc;
-        }
-        .btn-audio-ctrl:hover { background: rgba(255,255,255,0.1); color: white; }
+        /* SCROLLBAR FINA */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--neon-cyan); }
 
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: #333; }
+        /* ANIMAÇÃO DE GLOW */
+        .glow-text-cyan { text-shadow: 0 0 5px var(--neon-cyan); color: var(--neon-cyan); }
+        .glow-text-pink { text-shadow: 0 0 5px var(--neon-pink); color: var(--neon-pink); }
+        .glow-box { box-shadow: 0 0 15px rgba(0, 243, 255, 0.1); }
 
         @media (max-width: 768px) {
             body { height: auto; overflow-y: auto; }
@@ -100,83 +128,62 @@
         
         <aside class="d-flex flex-column gap-3">
             
-            <div id="relogio-card" class="hud-card p-3 text-center">
-                <div id="relogio" class="fw-bold lh-1 text-white" style="font-size: 3rem; letter-spacing: 2px; text-shadow: 0 0 15px rgba(0,243,255,0.3);">--:--</div>
-                <div id="data-hoje" class="text-secondary small mt-1 mb-2">--/--</div>
+            <div id="relogio-card" class="glass-panel p-4 text-center d-flex flex-column justify-content-center" style="min-height: 140px;">
+                <div id="relogio" class="fw-bold lh-1 text-white num-mono" style="font-size: 3.5rem; letter-spacing: -2px;">--:--</div>
+                <div id="data-hoje" class="text-secondary small mt-1 mb-3" style="letter-spacing: 2px;">--/--</div>
                 
-                <div class="pt-2 border-top border-secondary border-opacity-25 d-flex justify-content-center align-items-center gap-2" style="color: var(--neon-yellow);">
+                <div class="d-flex justify-content-center align-items-center gap-3 pt-3 border-top border-light border-opacity-10">
                     {% if clima %}
-                        <i class="bi bi-cloud-sun-fill fs-4"></i>
-                        <span class="fw-bold fs-2">{{ clima.temp }}°C</span>
+                        <i class="bi bi-cloud-haze2 fs-4 text-warning"></i>
+                        <span class="fw-bold fs-4 num-mono text-warning">{{ clima.temp }}°</span>
                     {% else %}
-                        <i class="bi bi-cloud fs-4 opacity-50"></i>
-                        <span class="fw-bold fs-2 opacity-50">--°C</span>
+                        <span class="text-muted small">Scanner Offline</span>
                     {% endif %}
                 </div>
             </div>
 
-            <div id="launcher-card" class="hud-card p-3 flex-grow-1 overflow-hidden d-flex flex-column">
-                <span class="label-tech">Acesso Rápido</span>
-                <div class="overflow-auto pe-2">
-                    <a href="https://chat.openai.com" target="_blank" class="btn-launch"><i class="bi bi-robot"></i> ChatGPT</a>
-                    <a href="https://www2.unesp.br/portal#!/area-do-aluno" target="_blank" class="btn-launch"><i class="bi bi-mortarboard"></i> UNESP</a>
-                    <a href="https://github.com" target="_blank" class="btn-launch"><i class="bi bi-github"></i> GitHub</a>
-                    <a href="https://youtube.com" target="_blank" class="btn-launch"><i class="bi bi-youtube"></i> YouTube</a>
-                    <a href="https://web.whatsapp.com" target="_blank" class="btn-launch"><i class="bi bi-whatsapp"></i> WhatsApp</a>
-                    <a href="https://mail.google.com" target="_blank" class="btn-launch"><i class="bi bi-envelope"></i> Gmail</a>
+            <div class="glass-panel p-3 flex-grow-1 d-flex flex-column overflow-hidden">
+                <span class="label-tech">Protocolos & Apps</span>
+                
+                <div class="overflow-auto pe-2 flex-grow-1 mb-3">
+                    <a href="https://chat.openai.com" target="_blank" class="btn-launch"><i class="bi bi-cpu"></i> ChatGPT AI</a>
+                    <a href="https://www2.unesp.br" target="_blank" class="btn-launch"><i class="bi bi-mortarboard"></i> UNESP Portal</a>
+                    <a href="https://github.com" target="_blank" class="btn-launch"><i class="bi bi-github"></i> Repositórios</a>
+                    <a href="https://youtube.com" target="_blank" class="btn-launch"><i class="bi bi-youtube"></i> Media Stream</a>
+                </div>
+
+                <div class="mt-auto border-top border-light border-opacity-10 pt-3">
+                    <span class="label-tech text-success">Terminal Log</span>
+                    <form hx-post="{% url 'adicionar_nota' %}" hx-target="#lista-notas-container" hx-on::after-request="this.reset()">
+                        {% csrf_token %}
+                        <div class="input-group input-group-sm mb-2">
+                            <input type="text" name="texto" class="form-control bg-transparent border-secondary text-white num-mono" 
+                                   placeholder="Inserir comando..." autocomplete="off" style="font-size: 0.8rem;">
+                            <button class="btn btn-outline-secondary" type="submit">↵</button>
+                        </div>
+                    </form>
+                    <div id="lista-notas-container" class="overflow-auto" style="max-height: 80px;">
+                        {% include 'dashboard/partials/lista_notas.html' %}
+                    </div>
                 </div>
             </div>
 
-            <div class="hud-card p-3 d-flex flex-column" style="border-left-color: var(--neon-green); max-height: 200px;">
-                <span class="label-tech mb-2" style="color: var(--neon-green);">System Log</span>
+            <div class="glass-panel p-3" style="border-bottom: 2px solid var(--neon-purple);">
+                <span class="label-tech">Audio Output</span>
                 
-                <form hx-post="{% url 'adicionar_nota' %}" hx-target="#lista-notas-container" hx-on::after-request="this.reset()">
-                    {% csrf_token %}
-                    <div class="input-group input-group-sm mb-2">
-                        <span class="input-group-text bg-dark border-secondary text-success border-end-0">></span>
-                        <input type="text" name="texto" class="form-control bg-dark border-secondary text-white border-start-0 shadow-none" 
-                               placeholder="Comando..." autocomplete="off" required
-                               style="font-family: 'Courier New', monospace; font-size: 0.85rem;">
-                        <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-arrow-return-left"></i></button>
-                    </div>
-                </form>
+                <canvas id="audio-visualizer" class="w-100 rounded mb-3" style="height: 40px; opacity: 0.7;"></canvas>
 
-                <div id="lista-notas-container" class="overflow-auto pe-1" style="flex-grow: 1;">
-                    {% include 'dashboard/partials/lista_notas.html' %}
-                </div>
-            </div>
-
-            <div class="hud-card p-3 position-relative" style="border-left-color: var(--neon-purple);">
-                <span class="label-tech mb-2">Sound System</span>
-
-                <canvas id="audio-visualizer" class="w-100 rounded mb-2" style="height: 50px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05);"></canvas>
-                
-                <button id="btn-audio" class="btn btn-sm btn-outline-secondary w-100 mb-3 py-0" style="font-size: 0.75rem;" onclick="alternarAudio()">
-                    <i class="bi bi-power"></i> Ativar Visualizer
-                </button>
-
-                <div class="d-flex gap-1 mb-3">
-                    <button class="btn btn-sm btn-audio-ctrl flex-fill" hx-get="/comando/mute" hx-swap="none"><i class="bi bi-mic-mute-fill text-danger"></i></button>
-                    <button class="btn btn-sm btn-audio-ctrl flex-fill" hx-get="/comando/vol_down" hx-swap="none"><i class="bi bi-dash-lg"></i></button>
-                    <button class="btn btn-sm btn-audio-ctrl flex-fill" hx-get="/comando/vol_up" hx-swap="none"><i class="bi bi-plus-lg"></i></button>
-                </div>
-
-                <span class="label-tech">Playlists</span>
-                <div class="row g-1">
-                    <div class="col-4">
-                        <button class="btn btn-sm btn-outline-success w-100 p-1" style="font-size: 0.7rem;" hx-get="/comando/sp_focus" hx-swap="none">
-                            <i class="bi bi-headphones"></i><br>Foco
+                <div class="row g-2">
+                    <div class="col-8">
+                         <button id="btn-audio" class="btn btn-sm btn-outline-light w-100 h-100 d-flex align-items-center justify-content-center gap-2" onclick="alternarAudio()" style="font-size: 0.75rem;">
+                            <i class="bi bi-soundwave"></i> <span>VISUALIZER</span>
                         </button>
                     </div>
                     <div class="col-4">
-                        <button class="btn btn-sm btn-outline-light w-100 p-1" style="font-size: 0.7rem;" hx-get="/comando/sp_rock" hx-swap="none">
-                            <i class="bi bi-guitar"></i><br>Rock
-                        </button>
-                    </div>
-                    <div class="col-4">
-                        <button class="btn btn-sm btn-outline-primary w-100 p-1" style="font-size: 0.7rem;" hx-get="/comando/sp_descobertas" hx-swap="none">
-                            <i class="bi bi-stars"></i><br>Mix
-                        </button>
+                        <div class="d-flex flex-column gap-1">
+                            <button class="btn btn-sm btn-dark border-secondary p-0" hx-get="/comando/vol_up" hx-swap="none"><i class="bi bi-plus"></i></button>
+                            <button class="btn btn-sm btn-dark border-secondary p-0" hx-get="/comando/vol_down" hx-swap="none"><i class="bi bi-dash"></i></button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -193,48 +200,31 @@
     </div>
 
     <script>
-        // Relógio
         function atualizarRelogio() {
             const agora = new Date();
-            const h = String(agora.getHours()).padStart(2, '0');
-            const m = String(agora.getMinutes()).padStart(2, '0');
-            document.getElementById('relogio').innerText = `${h}:${m}`;
-            const dia = String(agora.getDate()).padStart(2, '0');
-            const mes = String(agora.getMonth() + 1).padStart(2, '0');
-            document.getElementById('data-hoje').innerText = `${dia}/${mes}`;
+            document.getElementById('relogio').innerText = agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+            document.getElementById('data-hoje').innerText = agora.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'});
         }
         setInterval(atualizarRelogio, 1000);
         atualizarRelogio();
 
-        // Visualizer
-        let audioContext, analyser, source, currentStream;
-        let isRunning = false;
+        // Audio Visualizer
+        let audioContext, analyser, source, currentStream, isRunning = false;
         const canvas = document.getElementById('audio-visualizer');
         const ctx = canvas.getContext('2d');
-
-        function resizeCanvas() {
-            canvas.width = canvas.parentElement.offsetWidth;
-            canvas.height = 50;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+        
+        function resizeCanvas() { canvas.width = canvas.parentElement.offsetWidth; canvas.height = 40; }
+        window.addEventListener('resize', resizeCanvas); resizeCanvas();
 
         async function alternarAudio() {
-            const btn = document.getElementById('btn-audio');
             if (isRunning) {
-                if (currentStream) currentStream.getTracks().forEach(track => track.stop());
+                if (currentStream) currentStream.getTracks().forEach(t => t.stop());
                 if (audioContext) await audioContext.close();
                 isRunning = false;
-                btn.className = 'btn btn-sm btn-outline-secondary w-100 mb-3 py-0';
-                btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Reiniciar';
-                setTimeout(iniciarAudio, 300);
-            } else {
-                iniciarAudio();
-            }
+            } else { iniciarAudio(); }
         }
 
         async function iniciarAudio() {
-            const btn = document.getElementById('btn-audio');
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 currentStream = stream;
@@ -242,39 +232,27 @@
                 analyser = audioContext.createAnalyser();
                 source = audioContext.createMediaStreamSource(stream);
                 source.connect(analyser);
-                
-                analyser.fftSize = 64; 
-                analyser.smoothingTimeConstant = 0.6;
+                analyser.fftSize = 64;
                 const bufferLength = analyser.frequencyBinCount;
                 const dataArray = new Uint8Array(bufferLength);
-
                 isRunning = true;
-                btn.className = 'btn btn-sm btn-outline-success w-100 mb-3 py-0';
-                btn.innerHTML = '<i class="bi bi-activity"></i> Monitorando';
-                
+
                 function draw() {
                     if (!isRunning) return;
                     requestAnimationFrame(draw);
                     analyser.getByteFrequencyData(dataArray);
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    const barWidth = (canvas.width / bufferLength) - 1; 
-                    let barHeight;
+                    const barWidth = (canvas.width / bufferLength);
                     let x = 0;
                     for(let i = 0; i < bufferLength; i++) {
-                        barHeight = (dataArray[i] / 255) * canvas.height;
-                        ctx.fillStyle = '#00f3ff';
-                        if (barHeight > 0) {
-                            ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-                        }
-                        x += barWidth + 1;
+                        let barHeight = (dataArray[i] / 255) * canvas.height;
+                        ctx.fillStyle = `hsl(${i * 5 + 180}, 100%, 50%)`; // Ciano p/ Azul
+                        ctx.fillRect(x, canvas.height - barHeight, barWidth - 1, barHeight);
+                        x += barWidth;
                     }
                 }
                 draw();
-            } catch (err) {
-                console.error(err);
-                btn.className = 'btn btn-sm btn-danger w-100 mb-3 py-0';
-                btn.innerText = 'Sem Mic';
-            }
+            } catch (e) { console.error(e); }
         }
     </script>
 </body>
