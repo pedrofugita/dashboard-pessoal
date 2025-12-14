@@ -3,340 +3,259 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Financeiro & Telemetria</title>
+    <title>CMD CENTER</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://unpkg.com/htmx.org@1.9.6"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
-        .btn-launcher {
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(33, 37, 41, 0.8); /* Fundo escuro leve */
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-purple: #bc13fe;
+            --neon-yellow: #fcd34d; /* Cor nova para o clima */
+            --bg-dark: #050505;
+            --glass: rgba(20, 20, 25, 0.9);
+        }
+
+        body {
+            background-color: var(--bg-dark);
             color: #fff;
-            height: 90px;
+            font-family: 'Rajdhani', sans-serif;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            background-image: 
+                linear-gradient(rgba(188, 19, 254, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(188, 19, 254, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            grid-template-rows: 100%;
+            gap: 15px;
+            height: 100vh;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        .hud-card {
+            background: rgba(10, 10, 15, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-left: 2px solid var(--neon-blue);
+            border-radius: 4px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .label-tech { font-size: 0.65rem; color: var(--neon-blue); text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-bottom: 4px; display: block; }
+        
+        .btn-launch {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            color: #aaa;
+            text-decoration: none;
+            padding: 6px 10px;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            text-decoration: none;
-            border-radius: 12px;
-            position: relative;
-            overflow: hidden;
+            border-radius: 4px;
+            transition: all 0.2s;
+            margin-bottom: 4px;
         }
-        .btn-launcher:hover {
-            transform: translateY(-5px); /* Levanta um pouco */
-            background: rgba(255, 255, 255, 0.05);
+        .btn-launch:hover {
+            border-color: var(--neon-purple);
+            color: #fff;
+            background: rgba(188, 19, 254, 0.1);
+            transform: translateX(5px);
         }
-        .btn-launcher i {
-            font-size: 2rem;
-            margin-bottom: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        /* CORES ESPECÍFICAS (TEXTO E BRILHO) */
-        .neon-green { color: #198754; }
-        .neon-green:hover { 
-            color: #20c997; 
-            box-shadow: 0 0 15px rgba(32, 201, 151, 0.4); 
-            border-color: #20c997;
-        }
+        .btn-launch i { margin-right: 10px; width: 15px; text-align: center; color: var(--neon-blue); }
 
-        .neon-red { color: #dc3545; }
-        .neon-red:hover { 
-            color: #ff6b6b; 
-            box-shadow: 0 0 15px rgba(255, 107, 107, 0.4); 
-            border-color: #ff6b6b;
+        .btn-audio-ctrl {
+            font-size: 0.8rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.3);
+            color: #ccc;
         }
+        .btn-audio-ctrl:hover { background: rgba(255,255,255,0.1); color: white; }
 
-        .neon-blue { color: #0dcaf0; }
-        .neon-blue:hover { 
-            color: #4dabf7; 
-            box-shadow: 0 0 15px rgba(77, 171, 247, 0.4); 
-            border-color: #4dabf7;
-        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #333; }
 
-        .neon-purple { color: #d63384; }
-        .neon-purple:hover { 
-            color: #f06595; 
-            box-shadow: 0 0 15px rgba(240, 101, 149, 0.4); 
-            border-color: #f06595;
-        }
-        
-        .neon-orange { color: #fd7e14; }
-        .neon-orange:hover { 
-            color: #ff922b; 
-            box-shadow: 0 0 15px rgba(255, 146, 43, 0.4); 
-            border-color: #ff922b;
+        @media (max-width: 768px) {
+            body { height: auto; overflow-y: auto; }
+            .main-grid { display: flex; flex-direction: column; height: auto; }
         }
     </style>
 </head>
-<body class="bg-dark text-white">
+<body>
 
-    <div class="container mt-4">
-        <h1 class="text-center mb-4">
-            <i class="bi bi-speedometer2"></i> Painel de Controle
-        </h1>
-
-        {% if erro %}
-            <div class="alert alert-danger">{{ erro }}</div>
-        {% endif %}
-
-        <div class="row mb-4">
-            
-            <div class="col-md-4 mb-2">
-                <div class="card bg-secondary text-white h-100 border-0 shadow-sm">
-                    <div class="card-body text-center d-flex flex-column justify-content-center">
-                        <i class="bi bi-clock fs-3 mb-2"></i>
-                        <h2 id="relogio" class="fw-bold mb-0">--:--:--</h2>
-                        <span class="small text-light opacity-75">Horário Local</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4 mb-2">
-                <div class="card bg-secondary text-white h-100 border-0 shadow-sm">
-                    <div class="card-body text-center d-flex flex-column justify-content-center">
-                        <i class="bi bi-calendar-event fs-3 mb-2"></i>
-                        <h4 id="data-hoje" class="fw-bold mb-0">--/--/----</h4>
-                        <span id="dia-semana" class="small text-light opacity-75">...</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4 mb-2">
-                <div class="card bg-secondary text-white h-100 border-0 shadow-sm">
-                    <div class="card-body text-center d-flex flex-column justify-content-center">
-                        {% if clima %}
-                            <i class="bi bi-cloud-sun fs-3 mb-2"></i>
-                            <h2 class="fw-bold mb-0">{{ clima.temp }}°C</h2>
-                            <span class="small text-light opacity-75">Temperatura Atual</span>
-                        {% else %}
-                            <div class="spinner-border spinner-border-sm text-light" role="status"></div>
-                            <span class="small">Carregando...</span>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-        </div>
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card bg-dark border-secondary shadow">
-                    <div class="card-header border-secondary d-flex justify-content-between align-items-center">
-                        <span id="tituloGrafico" class="fw-bold"><i class="bi bi-graph-up"></i> Histórico</span>
-                        <small class="text-muted">Últimos 7 dias</small>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="graficoBitcoin" style="max-height: 300px;"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row justify-content-center"
-             id="painel-cripto"
-             hx-get="{% url 'atualizar_valores' %}"
-             hx-trigger="every 10s"
-             hx-target="#painel-cripto"
-             hx-swap="innerHTML">
-            
-            {% include 'dashboard/cards.html' %}
-
-        </div>
+    <div class="main-grid">
         
-        <div class="text-center mt-4 mb-5 text-muted small">
-            <i class="bi bi-arrow-repeat"></i> Atualizando dados em tempo real (10s)
-        </div>
+        <aside class="d-flex flex-column gap-3">
+            
+            <div id="relogio-card" class="hud-card p-3 text-center">
+                <div id="relogio" class="fw-bold lh-1 text-white" style="font-size: 3rem; letter-spacing: 2px; text-shadow: 0 0 15px rgba(0,243,255,0.3);">--:--</div>
+                <div id="data-hoje" class="text-secondary small mt-1 mb-2">--/--</div>
+                
+                <div class="pt-2 border-top border-secondary border-opacity-25 d-flex justify-content-center align-items-center gap-2" style="color: var(--neon-yellow);">
+                    {% if clima %}
+                        <i class="bi bi-cloud-sun-fill fs-4"></i>
+                        <span class="fw-bold fs-2">{{ clima.temp }}°C</span>
+                    {% else %}
+                        <i class="bi bi-cloud fs-4 opacity-50"></i>
+                        <span class="fw-bold fs-2 opacity-50">--°C</span>
+                    {% endif %}
+                </div>
+            </div>
 
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card bg-dark border-secondary shadow">
-                    <div class="card-header border-secondary">
-                        <i class="bi bi-keyboard-fill"></i> Stream Deck Pobre
+            <div id="launcher-card" class="hud-card p-3 flex-grow-1 overflow-hidden d-flex flex-column">
+                <span class="label-tech">Acesso Rápido</span>
+                <div class="overflow-auto pe-2">
+                    <a href="https://chat.openai.com" target="_blank" class="btn-launch"><i class="bi bi-robot"></i> ChatGPT</a>
+                    <a href="https://www2.unesp.br/portal#!/area-do-aluno" target="_blank" class="btn-launch"><i class="bi bi-mortarboard"></i> UNESP</a>
+                    <a href="https://github.com" target="_blank" class="btn-launch"><i class="bi bi-github"></i> GitHub</a>
+                    <a href="https://youtube.com" target="_blank" class="btn-launch"><i class="bi bi-youtube"></i> YouTube</a>
+                    <a href="https://web.whatsapp.com" target="_blank" class="btn-launch"><i class="bi bi-whatsapp"></i> WhatsApp</a>
+                    <a href="https://mail.google.com" target="_blank" class="btn-launch"><i class="bi bi-envelope"></i> Gmail</a>
+                </div>
+            </div>
+
+            <div class="hud-card p-3 position-relative" style="border-left-color: var(--neon-purple);">
+                <span class="label-tech mb-2">Sound System</span>
+
+                <canvas id="audio-visualizer" class="w-100 rounded mb-2" style="height: 50px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05);"></canvas>
+                
+                <button id="btn-audio" class="btn btn-sm btn-outline-secondary w-100 mb-3 py-0" style="font-size: 0.75rem;" onclick="alternarAudio()">
+                    <i class="bi bi-power"></i> Ativar Visualizer
+                </button>
+
+                <div class="d-flex gap-1 mb-3">
+                    <button class="btn btn-sm btn-audio-ctrl flex-fill" hx-get="/comando/mute" hx-swap="none"><i class="bi bi-mic-mute-fill text-danger"></i></button>
+                    <button class="btn btn-sm btn-audio-ctrl flex-fill" hx-get="/comando/vol_down" hx-swap="none"><i class="bi bi-dash-lg"></i></button>
+                    <button class="btn btn-sm btn-audio-ctrl flex-fill" hx-get="/comando/vol_up" hx-swap="none"><i class="bi bi-plus-lg"></i></button>
+                </div>
+
+                <span class="label-tech">Playlists</span>
+                <div class="row g-1">
+                    <div class="col-4">
+                        <button class="btn btn-sm btn-outline-success w-100 p-1" style="font-size: 0.7rem;" hx-get="/comando/sp_focus" hx-swap="none">
+                            <i class="bi bi-headphones"></i><br>Foco
+                        </button>
                     </div>
-                    <div class="card-body">
-                        <div class="row g-2">
-                            
-                            <div class="col-md-4 d-grid gap-2">
-                                <span class="text-muted small text-center">Apps</span>
-                                <button class="btn btn-outline-light" hx-get="/comando/calc" hx-swap="none">
-                                    <i class="bi bi-calculator"></i> Calc
-                                </button>
-                                <button class="btn btn-outline-light" hx-get="/comando/notepad" hx-swap="none">
-                                    <i class="bi bi-file-text"></i> Bloco de Notas
-                                </button>
-                            </div>
-
-                            <div class="col-md-4 d-grid gap-2">
-                                <span class="text-muted small text-center">Mídia</span>
-                                <div class="btn-group">
-                                    <button class="btn btn-outline-info" hx-get="/comando/prev" hx-swap="none"><i class="bi bi-skip-backward-fill"></i></button>
-                                    <button class="btn btn-outline-info" hx-get="/comando/play" hx-swap="none"><i class="bi bi-play-circle-fill"></i></button>
-                                    <button class="btn btn-outline-info" hx-get="/comando/next" hx-swap="none"><i class="bi bi-skip-forward-fill"></i></button>
-                                </div>
-                                <button class="btn btn-outline-warning" hx-get="/comando/explorer" hx-swap="none">
-                                    <i class="bi bi-folder2-open"></i> Arquivos
-                                </button>
-                            </div>
-
-                            <div class="col-md-4 d-grid gap-2">
-                                <span class="text-muted small text-center">Volume</span>
-                                <div class="btn-group">
-                                    <button class="btn btn-outline-danger" hx-get="/comando/vol_down" hx-swap="none"><i class="bi bi-volume-down-fill"></i></button>
-                                    <button class="btn btn-outline-danger" hx-get="/comando/mute" hx-swap="none"><i class="bi bi-volume-mute-fill"></i></button>
-                                    <button class="btn btn-outline-success" hx-get="/comando/vol_up" hx-swap="none"><i class="bi bi-volume-up-fill"></i></button>
-                                </div>
-                            </div>
-
-                        </div>
+                    <div class="col-4">
+                        <button class="btn btn-sm btn-outline-light w-100 p-1" style="font-size: 0.7rem;" hx-get="/comando/sp_rock" hx-swap="none">
+                            <i class="bi bi-guitar"></i><br>Rock
+                        </button>
+                    </div>
+                    <div class="col-4">
+                        <button class="btn btn-sm btn-outline-primary w-100 p-1" style="font-size: 0.7rem;" hx-get="/comando/sp_descobertas" hx-swap="none">
+                            <i class="bi bi-stars"></i><br>Mix
+                        </button>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card bg-dark border-secondary shadow">
-                    <div class="card-header border-secondary d-flex justify-content-between align-items-center">
-                        <span><i class="bi bi-rocket-takeoff-fill text-primary"></i> Central de Lançamento</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            
-                            <div class="col-4 col-md-2">
-                                <a href="https://chat.openai.com" target="_blank" class="btn-launcher neon-green">
-                                    <i class="bi bi-robot"></i>
-                                    <span class="small fw-bold">ChatGPT</span>
-                                </a>
-                            </div>
 
-                            <div class="col-4 col-md-2">
-                                <a href="https://www2.unesp.br/portal#!/area-do-aluno" target="_blank" class="btn-launcher neon-blue">
-                                    <i class="bi bi-mortarboard-fill"></i>
-                                    <span class="small fw-bold">Unesp</span>
-                                </a>
-                            </div>
+        </aside>
 
-                            <div class="col-4 col-md-2">
-                                <a href="https://youtube.com" target="_blank" class="btn-launcher neon-red">
-                                    <i class="bi bi-youtube"></i>
-                                    <span class="small fw-bold">YouTube</span>
-                                </a>
-                            </div>
-
-                            <div class="col-4 col-md-2">
-                                <a href="https://mail.google.com" target="_blank" class="btn-launcher neon-red">
-                                    <i class="bi bi-envelope-fill"></i>
-                                    <span class="small fw-bold">Gmail</span>
-                                </a>
-                            </div>
-
-                            <div class="col-4 col-md-2">
-                                <a href="https://github.com" target="_blank" class="btn-launcher neon-purple">
-                                    <i class="bi bi-github"></i>
-                                    <span class="small fw-bold">GitHub</span>
-                                </a>
-                            </div>
-
-                            <div class="col-4 col-md-2">
-                                <a href="https://web.whatsapp.com" target="_blank" class="btn-launcher neon-green">
-                                    <i class="bi bi-whatsapp"></i>
-                                    <span class="small fw-bold">WhatsApp</span>
-                                </a>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <main id="painel-dinamico"
+              class="d-flex flex-column h-100"
+              hx-get="{% url 'atualizar_valores' %}"
+              hx-trigger="every 10s"
+              hx-swap="innerHTML">
+              {% include 'dashboard/cards.html' %}
+        </main>
     </div>
 
     <script>
-        // --- 1. SCRIPT DO RELÓGIO E DATA ---
+        // Relógio
         function atualizarRelogio() {
             const agora = new Date();
-            
-            // Hora
-            const horas = String(agora.getHours()).padStart(2, '0');
-            const minutos = String(agora.getMinutes()).padStart(2, '0');
-            const segundos = String(agora.getSeconds()).padStart(2, '0');
-            document.getElementById('relogio').innerText = `${horas}:${minutos}:${segundos}`;
-
-            // Data
+            const h = String(agora.getHours()).padStart(2, '0');
+            const m = String(agora.getMinutes()).padStart(2, '0');
+            document.getElementById('relogio').innerText = `${h}:${m}`;
             const dia = String(agora.getDate()).padStart(2, '0');
             const mes = String(agora.getMonth() + 1).padStart(2, '0');
-            const ano = agora.getFullYear();
-            document.getElementById('data-hoje').innerText = `${dia}/${mes}/${ano}`;
-            
-            // Dia da semana
-            const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-            document.getElementById('dia-semana').innerText = diasSemana[agora.getDay()];
+            document.getElementById('data-hoje').innerText = `${dia}/${mes}`;
         }
-        
-        // Inicia o relógio
         setInterval(atualizarRelogio, 1000);
-        atualizarRelogio(); 
+        atualizarRelogio();
 
-        // --- 2. SCRIPT DO GRÁFICO ---
-        let chartInstance = null; 
+        // Visualizer
+        let audioContext, analyser, source, currentStream;
+        let isRunning = false;
+        const canvas = document.getElementById('audio-visualizer');
+        const ctx = canvas.getContext('2d');
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('graficoBitcoin').getContext('2d');
-            
-            // Pega dados da primeira moeda (índice 0) vinda do Python
-            const dadosIniciais = {{ cryptos.0.sparkline_in_7d.price }}; 
-            const nomeInicial = "{{ cryptos.0.name }}";
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = 50;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
-            chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: Array.from({length: dadosIniciais.length}, (_, i) => i + 1),
-                    datasets: [{
-                        label: nomeInicial,
-                        data: dadosIniciais,
-                        borderColor: '#f7931a', // Laranja Bitcoin
-                        backgroundColor: 'rgba(247, 147, 26, 0.1)',
-                        borderWidth: 2,
-                        pointRadius: 0,
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { display: false },
-                        y: { 
-                            grid: { color: '#333' }, 
-                            ticks: { color: '#888' } 
+        async function alternarAudio() {
+            const btn = document.getElementById('btn-audio');
+            if (isRunning) {
+                if (currentStream) currentStream.getTracks().forEach(track => track.stop());
+                if (audioContext) await audioContext.close();
+                isRunning = false;
+                btn.className = 'btn btn-sm btn-outline-secondary w-100 mb-3 py-0';
+                btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Reiniciar';
+                setTimeout(iniciarAudio, 300);
+            } else {
+                iniciarAudio();
+            }
+        }
+
+        async function iniciarAudio() {
+            const btn = document.getElementById('btn-audio');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                currentStream = stream;
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                source = audioContext.createMediaStreamSource(stream);
+                source.connect(analyser);
+                
+                analyser.fftSize = 64; 
+                analyser.smoothingTimeConstant = 0.6;
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+
+                isRunning = true;
+                btn.className = 'btn btn-sm btn-outline-success w-100 mb-3 py-0';
+                btn.innerHTML = '<i class="bi bi-activity"></i> Monitorando';
+                
+                function draw() {
+                    if (!isRunning) return;
+                    requestAnimationFrame(draw);
+                    analyser.getByteFrequencyData(dataArray);
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    const barWidth = (canvas.width / bufferLength) - 1; 
+                    let barHeight;
+                    let x = 0;
+                    for(let i = 0; i < bufferLength; i++) {
+                        barHeight = (dataArray[i] / 255) * canvas.height;
+                        ctx.fillStyle = '#00f3ff';
+                        if (barHeight > 0) {
+                            ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
                         }
-                    },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index',
-                    },
+                        x += barWidth + 1;
+                    }
                 }
-            });
-            
-            document.getElementById('tituloGrafico').innerText = "Histórico: " + nomeInicial;
-        });
-
-        // Função chamada ao clicar nos cards das criptos
-        function mudarGrafico(nome, listaPrecos, cor) {
-            chartInstance.data.datasets[0].data = listaPrecos;
-            chartInstance.data.datasets[0].label = nome;
-            chartInstance.data.datasets[0].borderColor = cor;
-            chartInstance.data.datasets[0].backgroundColor = cor + '1A'; 
-            chartInstance.update();
-            
-            document.getElementById('tituloGrafico').innerHTML = `<i class="bi bi-graph-up"></i> Histórico: ${nome}`;
+                draw();
+            } catch (err) {
+                console.error(err);
+                btn.className = 'btn btn-sm btn-danger w-100 mb-3 py-0';
+                btn.innerText = 'Sem Mic';
+            }
         }
     </script>
 </body>

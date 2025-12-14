@@ -1,207 +1,140 @@
-{% if spotify %}
-<div class="col-12 mb-4">
-    <div class="card border-0 overflow-hidden text-white shadow" style="background-color: #1DB954;">
-        <div class="row g-0 align-items-center">
+<div class="d-flex flex-column gap-3 h-100">
+
+    <div class="hud-card position-relative overflow-hidden flex-shrink-0" 
+         style="min-height: 110px; border-left-color: var(--neon-green);">
+        
+        {% if spotify and spotify.tocando %}
+            <div style="position: absolute; inset: 0; background: url('{{ spotify.capa }}') center/cover; filter: blur(15px); opacity: 0.3;"></div>
             
-            <div class="col-auto">
-                <img src="{{ spotify.capa }}" 
-                     class="img-fluid" 
-                     alt="Capa" 
-                     style="height: 120px; width: 120px; object-fit: cover;">
-            </div>
-            
-            <div class="col px-3 py-2">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div style="overflow: hidden;">
-                        <h4 class="card-title fw-bold mb-0 text-truncate">{{ spotify.nome }}</h4>
-                        <p class="card-text mb-2 text-white-50 fs-5 text-truncate">{{ spotify.artista }}</p>
-                    </div>
+            <div class="d-flex align-items-center p-3 h-100 position-relative" style="z-index: 2;">
+                <img src="{{ spotify.capa }}" class="rounded shadow me-3 border border-secondary" style="height: 80px; width: 80px;">
+                
+                <div class="flex-grow-1 overflow-hidden">
+                    <h4 class="mb-0 fw-bold text-white text-truncate">{{ spotify.nome }}</h4>
+                    <p class="text-info mb-1 text-truncate">{{ spotify.artista }}</p>
                     
-                    {% if spotify.tocando %}
-                        <div class="spinner-grow text-white spinner-grow-sm flex-shrink-0" role="status"></div>
-                    {% else %}
-                        <i class="bi bi-pause-circle-fill fs-3 flex-shrink-0"></i>
-                    {% endif %}
+                    <div class="progress bg-dark bg-opacity-50 mt-2" style="height: 5px;">
+                        <div class="progress-bar bg-success" style="width: {{ spotify.percent }}%"></div>
+                    </div>
                 </div>
 
-                <div class="progress bg-dark bg-opacity-25 mt-2" style="height: 6px;">
-                    <div class="progress-bar bg-white" 
-                         role="progressbar" 
-                         style="width: {{ spotify.percent }}%"></div>
-                </div>
-                
-                <div class="mt-2 d-flex gap-2">
-                    <button class="btn btn-sm btn-outline-light border-0" hx-get="/comando/prev" hx-swap="none">
-                        <i class="bi bi-skip-backward-fill"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-light border-0" hx-get="/comando/play" hx-swap="none">
-                        {% if spotify.tocando %}
-                            <i class="bi bi-pause-fill"></i>
-                        {% else %}
-                            <i class="bi bi-play-fill"></i>
-                        {% endif %}
-                    </button>
-                    <button class="btn btn-sm btn-outline-light border-0" hx-get="/comando/next" hx-swap="none">
-                        <i class="bi bi-skip-forward-fill"></i>
-                    </button>
+                <div class="d-flex gap-2 ms-3">
+                    <button class="btn btn-outline-light rounded-circle" hx-get="/comando/prev" hx-swap="none"><i class="bi bi-skip-backward-fill"></i></button>
+                    <button class="btn btn-outline-success rounded-circle" hx-get="/comando/play" hx-swap="none"><i class="bi bi-pause-fill"></i></button>
+                    <button class="btn btn-outline-light rounded-circle" hx-get="/comando/next" hx-swap="none"><i class="bi bi-skip-forward-fill"></i></button>
                 </div>
             </div>
-        </div>
+        {% else %}
+            <div class="d-flex align-items-center justify-content-center h-100 text-white-50">
+                <i class="bi bi-spotify fs-2 me-3"></i>
+                <div>
+                    <h5 class="mb-0">Spotify Ready</h5>
+                    <small>Selecione uma playlist no menu lateral</small>
+                </div>
+            </div>
+        {% endif %}
     </div>
-</div>
-{% endif %}
 
-<div class="col-12 mb-4">
-    <div class="card bg-dark border-secondary shadow-sm">
-        <div class="card-header border-secondary text-white d-flex justify-content-between align-items-center">
-            <span><i class="bi bi-motherboard-fill me-2"></i> Telemetria em Tempo Real</span>
-            <small class="text-muted" style="font-size: 0.8rem;">Atualiza a cada 10s</small>
-        </div>
-        <div class="card-body">
+    <div class="hud-card p-3 flex-grow-1 d-flex flex-column" style="border-left-color: var(--neon-blue);">
+        <div class="row g-0 h-100">
             
-            <div class="row text-white">
-                <div class="col-md-6 mb-3">
-                    <div class="d-flex justify-content-between mb-1">
-                        <span><i class="bi bi-cpu me-1"></i> Processador</span>
-                        <span class="fw-bold">{{ sistema.cpu }}%</span>
+            <div class="col-md-4 border-end border-secondary border-opacity-25 pe-3 d-flex flex-column justify-content-center">
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-end mb-1">
+                        <span class="label-tech"><i class="bi bi-cpu"></i> Processador</span>
+                        <span class="fw-bold {% if sistema.cpu > 80 %}text-danger{% else %}text-info{% endif %}">{{ sistema.cpu }}%</span>
                     </div>
-                    <div class="progress bg-secondary" style="height: 6px;">
-                        <div class="progress-bar {% if sistema.cpu > 80 %}bg-danger{% else %}bg-info{% endif %}" 
-                             role="progressbar" style="width: {{ sistema.cpu }}%"></div>
+                    <div class="progress bg-dark" style="height: 6px;">
+                        <div class="progress-bar bg-info" style="width: {{ sistema.cpu }}%"></div>
                     </div>
                 </div>
-
-                <div class="col-md-6 mb-3">
-                    <div class="d-flex justify-content-between mb-1">
-                        <span><i class="bi bi-memory me-1"></i> Memória RAM</span>
-                        <span class="fw-bold">{{ sistema.ram_used }}GB <span class="text-muted fw-normal">/ {{ sistema.ram_total }}GB</span></span>
+                <div>
+                    <div class="d-flex justify-content-between align-items-end mb-1">
+                        <span class="label-tech"><i class="bi bi-memory"></i> Memória RAM</span>
+                        <span class="fw-bold text-white">{{ sistema.ram_used }} <span class="text-secondary small">/ {{ sistema.ram_total }}G</span></span>
                     </div>
-                    <div class="progress bg-secondary" style="height: 6px;">
-                        <div class="progress-bar" role="progressbar" 
-                             style="width: {{ sistema.ram_percent }}%; background-color: #d63384;"></div>
+                    <div class="progress bg-dark" style="height: 6px;">
+                        <div class="progress-bar" style="width: {{ sistema.ram_percent }}%; background-color: var(--neon-purple);"></div>
                     </div>
                 </div>
             </div>
 
-            <hr class="border-secondary my-2">
-
-            <div class="row text-white mt-3">
+            <div class="col-md-4 border-end border-secondary border-opacity-25 px-3 d-flex flex-column justify-content-center">
                 
-                <div class="col-md-6 mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span>
-                            {% if sistema.rede.tipo == 'ethernet' %}
-                                <i class="bi bi-ethernet me-1 text-primary"></i>
-                            {% else %}
-                                <i class="bi bi-wifi me-1 text-primary"></i>
-                            {% endif %}
-                            Rede / Latência
-                        </span>
-                        <span class="fw-bold {% if sistema.rede.ping < 50 %}text-success{% elif sistema.rede.ping < 100 %}text-warning{% else %}text-danger{% endif %}">
-                            {{ sistema.rede.ping }} ms
-                        </span>
-                    </div>
-                    
-                    <div class="d-flex justify-content-between small text-muted mb-2">
-                        <span class="text-truncate" style="max-width: 200px;">{{ sistema.rede.nome }}</span>
-                        <span>Limite: 100 Mbps</span>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center small">
-                        <span><i class="bi bi-download text-info"></i> Download</span>
-                        <span class="fw-bold">{{ sistema.rede.download_mbps }} Mbps</span>
-                    </div>
-                    <div class="progress bg-secondary mb-2" style="height: 6px;">
-                        <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" 
-                             role="progressbar" 
-                             style="width: {{ sistema.rede.percent_down }}%"></div>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center small mt-2">
-                        <span><i class="bi bi-upload text-warning"></i> Upload</span>
-                        <span class="fw-bold text-muted">{{ sistema.rede.upload_mbps }} Mbps</span>
-                    </div>
-                    <div class="progress bg-secondary" style="height: 6px;">
-                        <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated" 
-                             role="progressbar" 
-                             style="width: {{ sistema.rede.percent_up }}%"></div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 mb-3">
+                <div class="mb-3">
                     {% for disco in sistema.discos %}
-                    <div class="d-flex justify-content-between mb-1 small">
-                        <span><i class="bi bi-hdd-fill me-1"></i> {{ disco.letra }} ({{ disco.tipo }})</span>
-                        <span>{{ disco.percent }}%</span>
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="label-tech mb-0">{{ disco.letra }} ({{ disco.tipo }})</span>
+                        <small class="{% if disco.percent > 90 %}text-danger{% else %}text-white-50{% endif %}">{{ disco.percent }}%</small>
                     </div>
-                    <div class="progress bg-secondary mb-2" style="height: 6px;">
-                        <div class="progress-bar {% if disco.percent > 90 %}bg-danger{% else %}bg-primary{% endif %}" 
-                             role="progressbar" style="width: {{ disco.percent }}%"></div>
+                    <div class="progress bg-dark mb-2" style="height: 4px;">
+                        <div class="progress-bar {% if disco.letra == 'C:\\' %}bg-primary{% else %}bg-secondary{% endif %}" style="width: {{ disco.percent }}%"></div>
                     </div>
-                    <small class="text-muted" style="font-size: 0.7rem;">Capacidade Total: {{ disco.total }} GB</small>
-                    <div class="mb-2"></div> {% endfor %}
+                    {% endfor %}
+                </div>
+
+                <div>
+                    <span class="label-tech">Conexão ({{ sistema.rede.ping }}ms)</span>
+                    <div class="row g-1 mt-1">
+                        <div class="col-6">
+                            <div class="bg-white bg-opacity-10 p-1 rounded text-center">
+                                <i class="bi bi-download text-info small"></i>
+                                <span class="d-block fw-bold small">{{ sistema.rede.download_mbps }}</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-white bg-opacity-10 p-1 rounded text-center">
+                                <i class="bi bi-upload text-warning small"></i>
+                                <span class="d-block fw-bold small">{{ sistema.rede.upload_mbps }}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {% if sistema.gpu %}
-            <hr class="border-secondary my-2">
-            <div class="row text-white mt-3">
-                <div class="col-12">
-                    <div class="d-flex justify-content-between mb-1">
-                        <span class="text-warning"><i class="bi bi-gpu-card me-1"></i> {{ sistema.gpu.nome }}</span>
-                        <span><i class="bi bi-thermometer-half"></i> {{ sistema.gpu.temp }}°C</span>
+            <div class="col-md-4 ps-3 d-flex flex-column justify-content-center align-items-center text-center">
+                {% if sistema.gpu %}
+                    <span class="label-tech mb-2 text-warning">{{ sistema.gpu.nome|truncatechars:20 }}</span>
+                    
+                    <div class="position-relative mb-2" style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: conic-gradient(var(--neon-red) {{ sistema.gpu.load }}%, #222 0); box-shadow: 0 0 15px rgba(255,0,0,0.2);">
+                        <div style="width: 58px; height: 58px; background: #0b0b0b; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <span class="fs-4 fw-bold">{{ sistema.gpu.temp }}°</span>
+                        </div>
                     </div>
-                    <div class="d-flex justify-content-between mt-1 small text-muted">
-                        <span>Uso: {{ sistema.gpu.load }}%</span>
-                        <span>VRAM: {{ sistema.gpu.mem_used }}GB / {{ sistema.gpu.mem_total }}GB</span>
+                    
+                    <div class="w-100 px-2">
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>Load: {{ sistema.gpu.load }}%</span>
+                            <span>VRAM: {{ sistema.gpu.mem_used }}G</span>
+                        </div>
+                        <div class="progress bg-dark mt-1" style="height: 4px;">
+                            <div class="progress-bar bg-warning" style="width: {{ sistema.gpu.load }}%"></div>
+                        </div>
                     </div>
-                    <div class="progress bg-secondary mt-1" style="height: 6px;">
-                        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ sistema.gpu.load }}%"></div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-
-        </div>
-    </div>
-</div>
-
-{% for moeda in cryptos %}
-<div class="col-md-4 mb-4" 
-     style="cursor: pointer;" 
-     onclick="mudarGrafico('{{ moeda.name }}', {{ moeda.sparkline_in_7d.price }}, '{% if moeda.price_change_percentage_24h > 0 %}#198754{% else %}#dc3545{% endif %}')">
-    
-    <div class="card bg-dark text-light border-secondary h-100 shadow-sm hover-effect">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <div class="d-flex align-items-center">
-                    <img src="{{ moeda.image }}" alt="{{ moeda.name }}" width="30" class="me-2">
-                    <h5 class="card-title mb-0">{{ moeda.symbol|upper }}</h5>
-                </div>
-                
-                {% if moeda.price_change_percentage_24h > 0 %}
-                    <span class="badge bg-success">
-                        ▲ {{ moeda.price_change_percentage_24h|floatformat:2 }}%
-                    </span>
                 {% else %}
-                    <span class="badge bg-danger">
-                        ▼ {{ moeda.price_change_percentage_24h|floatformat:2 }}%
-                    </span>
+                    <span class="text-muted">Sem GPU Dedicada</span>
                 {% endif %}
             </div>
-            
-            <h3 class="mt-3 mb-0">US$ {{ moeda.current_price|floatformat:2 }}</h3>
-            <small class="text-secondary">
-                ≈ R$ {{ moeda.preco_brl|floatformat:2 }}
-            </small>
 
-            <p class="text-muted small mt-2 mb-0">{{ moeda.name }}</p>
         </div>
     </div>
-</div>
 
-{% empty %}
-    <div class="col-12">
-        <div class="alert alert-warning">Carregando dados...</div>
+    <div class="hud-card px-3 py-2 flex-shrink-0" style="border-left-color: var(--neon-purple); min-height: 45px;">
+        <div class="d-flex align-items-center h-100 overflow-hidden">
+            <span class="label-tech me-3 border-end border-secondary pe-3 d-none d-md-block">MARKET</span>
+            <div class="d-flex align-items-center gap-3 overflow-x-auto" style="white-space: nowrap; scrollbar-width: none;">
+                {% for moeda in cryptos %}
+                <div class="d-flex align-items-center bg-white bg-opacity-5 rounded px-2 py-1" style="border: 1px solid rgba(255,255,255,0.05);">
+                    <img src="{{ moeda.image }}" width="14" class="me-2 rounded-circle">
+                    <span class="fw-bold me-2 small">{{ moeda.symbol|upper }}</span>
+                    <span class="small me-2 text-info">${{ moeda.current_price|floatformat:0 }}</span>
+                    <small class="{% if moeda.price_change_percentage_24h > 0 %}text-success{% else %}text-danger{% endif %}" style="font-size: 0.7rem;">
+                        {{ moeda.price_change_percentage_24h|floatformat:1 }}%
+                    </small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
-{% endfor %}
+
+</div>
