@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 import pyautogui
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
+from .models import Anotacao
 
 load_dotenv() # <--- Isso lê o arquivo .env
 SPOTIPY_CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
@@ -149,6 +150,10 @@ def buscar_dados_completos():
 # --- ENDPOINTS ---
 def home(request):
     info = buscar_dados_completos()
+    
+    notas = Anotacao.objects.order_by('-criado_em')
+    info['notas'] = notas 
+    
     return render(request, 'dashboard/home.html', info)
 
 def atualizar_valores(request):
@@ -167,3 +172,25 @@ def executar_acao(request, comando):
         # ... seus outros comandos ...
     except: pass
     return HttpResponse(status=204)
+
+# --- FUNÇÕES DO LOG DE BORDO ---
+def adicionar_nota(request):
+    if request.method == "POST":
+        texto_nota = request.POST.get('texto')
+        if texto_nota:
+            Anotacao.objects.create(texto=texto_nota)
+    
+    # Retorna apenas a lista atualizada (HTML parcial)
+    notas = Anotacao.objects.order_by('-criado_em')
+    return render(request, 'dashboard/partials/lista_notas.html', {'notas': notas})
+
+def deletar_nota(request, nota_id):
+    try:
+        nota = Anotacao.objects.get(id=nota_id)
+        nota.delete()
+    except:
+        pass
+    
+    # Retorna apenas a lista atualizada
+    notas = Anotacao.objects.order_by('-criado_em')
+    return render(request, 'dashboard/partials/lista_notas.html', {'notas': notas})

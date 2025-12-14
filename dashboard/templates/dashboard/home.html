@@ -14,7 +14,7 @@
 
     <style>
         :root {
-            --neon-blue: #00f3ff;
+            --neon-blue: #ff0000;
             --neon-purple: #bc13fe;
             --neon-yellow: #fcd34d; /* Cor nova para o clima */
             --bg-dark: #050505;
@@ -94,7 +94,7 @@
         }
     </style>
 </head>
-<body>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 
     <div class="main-grid">
         
@@ -124,6 +124,25 @@
                     <a href="https://youtube.com" target="_blank" class="btn-launch"><i class="bi bi-youtube"></i> YouTube</a>
                     <a href="https://web.whatsapp.com" target="_blank" class="btn-launch"><i class="bi bi-whatsapp"></i> WhatsApp</a>
                     <a href="https://mail.google.com" target="_blank" class="btn-launch"><i class="bi bi-envelope"></i> Gmail</a>
+                </div>
+            </div>
+
+            <div class="hud-card p-3 d-flex flex-column" style="border-left-color: var(--neon-green); max-height: 200px;">
+                <span class="label-tech mb-2" style="color: var(--neon-green);">System Log</span>
+                
+                <form hx-post="{% url 'adicionar_nota' %}" hx-target="#lista-notas-container" hx-on::after-request="this.reset()">
+                    {% csrf_token %}
+                    <div class="input-group input-group-sm mb-2">
+                        <span class="input-group-text bg-dark border-secondary text-success border-end-0">></span>
+                        <input type="text" name="texto" class="form-control bg-dark border-secondary text-white border-start-0 shadow-none" 
+                               placeholder="Comando..." autocomplete="off" required
+                               style="font-family: 'Courier New', monospace; font-size: 0.85rem;">
+                        <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-arrow-return-left"></i></button>
+                    </div>
+                </form>
+
+                <div id="lista-notas-container" class="overflow-auto pe-1" style="flex-grow: 1;">
+                    {% include 'dashboard/partials/lista_notas.html' %}
                 </div>
             </div>
 

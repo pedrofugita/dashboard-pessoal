@@ -1,0 +1,25 @@
+<div class="d-flex flex-column gap-2">
+    {% for nota in notas %}
+    <div class="d-flex justify-content-between align-items-center bg-white bg-opacity-10 px-2 py-1 rounded border border-secondary border-opacity-25 fade-in">
+        <span class="small text-white-50 text-truncate" style="font-family: 'Courier New', monospace;">
+            > {{ nota.texto }}
+        </span>
+        <button class="btn btn-sm text-danger p-0 border-0" 
+                hx-post="{% url 'deletar_nota' nota.id %}"
+                hx-target="#lista-notas-container"
+                hx-swap="innerHTML"
+                style="line-height: 1;">
+            <i class="bi bi-x"></i>
+        </button>
+    </div>
+    {% empty %}
+    <div class="text-center text-muted small fst-italic mt-2">
+        Nenhum registro no log.
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    .fade-in { animation: fadeIn 0.3s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+</style>
