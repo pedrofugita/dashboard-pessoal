@@ -122,8 +122,10 @@
         </div>
     </div>
 
+    <!-- COLUNA 2 -->
     <div class="d-flex flex-column gap-3">
-                
+        
+        <!-- CÉLULA 1: ATALHOS -->
         <div class="glass-panel p-3" style="border-left: 2px solid var(--neon-red);">
             <span class="label-tech mb-2">Atalhos</span>
             <div class="d-grid gap-2" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
@@ -187,55 +189,96 @@
 
             </div>
         </div>
+
+        <!-- CÉLULA 2: MÚSICA -->
         
-        <div class="glass-panel p-0 flex-grow-1 position-relative d-flex flex-column" style="border-left: 2px solid var(--neon-purple);">
+        <div class="glass-panel p-0 flex-grow-1 position-relative d-flex flex-column" style="border-left: 2px solid var(--neon-red);">
             
             {% if spotify and spotify.tocando %}
                 <div style="position: absolute; inset: 0; background: url('{{ spotify.capa }}') center/cover; filter: blur(20px) brightness(0.3); z-index: 0;"></div>
                 
                 <div class="p-4 d-flex flex-column h-100 position-relative" style="z-index: 1;">
-                    <div class="text-center mt-3">
-                        <img src="{{ spotify.capa }}" class="rounded shadow-lg border border-white border-opacity-25" style="width: 180px; height: 180px;">
+                    
+                    <div class="text-center mt-2">
+                        <div class="position-relative d-inline-block">
+                            <img src="{{ spotify.capa }}" class="rounded shadow-lg border border-white border-opacity-25" style="width: 160px; height: 160px;">
+                            <a href="{{ spotify.link_externo }}" target="_blank" class="position-absolute bottom-0 end-0 m-2 btn btn-sm btn-dark rounded-circle bg-opacity-75 border-0" title="Abrir no Spotify">
+                                <i class="bi bi-box-arrow-up-right small"></i>
+                            </a>
+                        </div>
                         <h4 class="mt-3 mb-0 text-white fw-bold text-truncate">{{ spotify.nome }}</h4>
-                        <p class="text-white-50">{{ spotify.artista }}</p>
+                        <p class="text-white-50 small">{{ spotify.artista }}</p>
                     </div>
 
-                    <div class="flex-grow-1 d-flex align-items-center">
-                        <canvas id="audio-visualizer" class="w-100 rounded" style="height: 80px; background: rgba(0,0,0,0.2);"></canvas>
+                    <div class="flex-grow-1 d-flex align-items-center my-2">
+                        <canvas id="audio-visualizer" class="w-100 rounded" style="height: 60px; background: rgba(0,0,0,0.2);"></canvas>
                     </div>
 
                     <div class="mt-auto">
-                        <div class="progress bg-white bg-opacity-10 mb-3" style="height: 4px;">
+                        <div class="progress bg-white bg-opacity-10 mb-2" style="height: 4px;">
                             <div class="progress-bar bg-success box-shadow-glow" style="width: {{ spotify.percent }}%"></div>
                         </div>
+                        
+                        <div class="d-flex justify-content-between font-monospace text-white-50" style="font-size: 0.7rem;">
+                            <span>{{ spotify.tempo_atual }}</span>
+                            <span>{{ spotify.tempo_total }}</span>
+                        </div>
 
-                        <div class="d-flex justify-content-center align-items-center gap-4 mb-3">
-                            <button class="btn btn-outline-light rounded-circle border-0 fs-4" hx-get="/comando/prev" hx-swap="none"><i class="bi bi-skip-backward-fill"></i></button>
-                            <button class="btn btn-light rounded-circle fs-2 shadow-lg" hx-get="/comando/play" hx-swap="none"><i class="bi bi-play-fill text-dark"></i></button>
-                            <button class="btn btn-outline-light rounded-circle border-0 fs-4" hx-get="/comando/next" hx-swap="none"><i class="bi bi-skip-forward-fill"></i></button>
+                        <div class="d-flex justify-content-center align-items-center gap-3 mb-3 mt-2">
+                            <button class="btn btn-sm btn-link border-0 {% if spotify.shuffle_state %}text-success{% else %}text-secondary{% endif %}" 
+                                    hx-get="/comando/shuffle" hx-swap="none" title="Aleatório">
+                                <i class="bi bi-shuffle"></i>
+                            </button>
+
+                            <button class="btn btn-outline-light rounded-circle border-0 fs-4" hx-get="/comando/prev" hx-swap="none">
+                                <i class="bi bi-skip-backward-fill"></i>
+                            </button>
+
+                            <button class="btn btn-light rounded-circle fs-2 shadow-lg scale-hover" hx-get="/comando/play" hx-swap="none">
+                                <i class="bi {% if spotify.is_playing %}bi-pause-fill{% else %}bi-play-fill{% endif %} text-dark"></i>
+                            </button>
+
+                            <button class="btn btn-outline-light rounded-circle border-0 fs-4" hx-get="/comando/next" hx-swap="none">
+                                <i class="bi bi-skip-forward-fill"></i>
+                            </button>
+
+                            <button class="btn btn-sm btn-link border-0 {% if spotify.is_liked %}text-danger{% else %}text-secondary{% endif %}" 
+                                    hx-get="/comando/like" hx-swap="none" title="Curtir">
+                                <i class="bi {% if spotify.is_liked %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
+                            </button>
                         </div>
                         
-                        <div class="d-flex align-items-center gap-2 bg-black bg-opacity-40 p-2 rounded-pill border border-white border-opacity-10 w-75 mx-auto">
+                        <div class="d-flex align-items-center gap-2 bg-black bg-opacity-40 p-2 rounded-pill border border-white border-opacity-10 w-90 mx-auto">
                             <button class="btn btn-sm btn-link text-white p-0" hx-get="/comando/vol_down" hx-swap="none"><i class="bi bi-dash-lg"></i></button>
-                            <div class="flex-grow-1 text-center small text-secondary">VOLUME PC</div>
+                            <div class="flex-grow-1 text-center small text-secondary" style="font-size: 0.7rem;">VOL SYSTEM</div>
                             <button class="btn btn-sm btn-link text-white p-0" hx-get="/comando/vol_up" hx-swap="none"><i class="bi bi-plus-lg"></i></button>
-                            <button class="btn btn-sm btn-outline-secondary rounded-circle ms-2" onclick="alternarAudio()"><i id="btn-audio-icon" class="bi bi-play-fill"></i></button>
+                            <button class="btn btn-sm btn-outline-secondary rounded-circle ms-2 border-0" onclick="alternarAudio()"><i id="btn-audio-icon" class="bi bi-soundwave"></i></button>
                         </div>
                     </div>
                 </div>
+
             {% else %}
                 <div class="d-flex flex-column align-items-center justify-content-center h-100 text-white-50">
-                    <i class="bi bi-spotify" style="font-size: 5rem; opacity: 0.2;"></i>
-                    <p class="mt-3 font-monospace">AGUARDANDO SPOTIFY...</p>
-                    <div class="mt-5 w-75">
-                         <canvas id="audio-visualizer" class="w-100 rounded" style="height: 60px; background: rgba(0,0,0,0.2);"></canvas>
-                         <button class="btn btn-outline-light btn-sm w-100 mt-2" onclick="alternarAudio()">Ligar Visualizer (Microfone)</button>
+                    <i class="bi bi-spotify" style="font-size: 4rem; opacity: 0.2;"></i>
+                    
+                    <p class="mt-3 font-monospace small">CONEXÃO NECESSÁRIA</p>
+                    
+                    <a href="/login_spotify" class="btn btn-success btn-sm rounded-pill px-4 fw-bold shadow-lg mb-3">
+                        <i class="bi bi-spotify me-2"></i> AUTORIZAR SPOTIFY
+                    </a>
+
+                    <div class="w-75 text-center opacity-50">
+                        <canvas id="audio-visualizer" class="w-100 rounded mb-2" style="height: 40px; background: rgba(0,0,0,0.2);"></canvas>
+                        <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" onclick="alternarAudio()" style="font-size: 0.7rem;">
+                            <i class="bi bi-mic-fill me-1"></i> Visualizer Mic
+                        </button>
                     </div>
                 </div>
             {% endif %}
         </div>
     </div>
 
+    <!-- COLUNA 3 -->
     <div class="d-flex flex-column gap-3">
         
         <div class="glass-panel p-3 flex-grow-1 d-flex flex-column" style="border-left: 2px solid var(--neon-green);">

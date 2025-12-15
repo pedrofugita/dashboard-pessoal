@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 import requests
 import psutil
@@ -11,25 +11,49 @@ from dotenv import load_dotenv
 import pyautogui
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
+from django.conf import settings
 from .models import Anotacao
 
-load_dotenv() # <--- Isso lê o arquivo .env
-SPOTIPY_CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
-SPOTIPY_CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
-SPOTIPY_REDIRECT_URI = os.getenv('SPOTIPY_REDIRECT_URI')
+load_dotenv()
 
-# Configuração de Autenticação
-scope = "user-read-playback-state user-modify-playback-state"
+# === CONFIGURAÇÃO DE AUTENTICAÇÃO ===
+# O objeto sp_oauth gerencia a "burocracia" do token
+sp_oauth = SpotifyOAuth(
+    client_id=settings.SPOTIPY_CLIENT_ID,
+    client_secret=settings.SPOTIPY_CLIENT_SECRET,
+    redirect_uri=settings.SPOTIPY_REDIRECT_URI,
+    scope=settings.SPOTIFY_SCOPE, # Lendo do settings.py atualizado
+    cache_path='.cache'
+)
 
-# Cria o objeto de autenticação globalmente
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
-    client_id=SPOTIPY_CLIENT_ID,
-    client_secret=SPOTIPY_CLIENT_SECRET,
-    redirect_uri=SPOTIPY_REDIRECT_URI,
-    scope=scope
-))
+# === FUNÇÃO AUXILIAR: CRIA O CLIENTE ===
+def get_spotify_client(request):
+    """
+    Tenta obter o cliente (sp) autenticado.
+    Retorna None se o usuário não estiver logado.
+    """
+    token_info = sp_oauth.get_cached_token()
+    
+    # Se não achar no cache, tenta pegar da URL (callback de login)
+    if not token_info:
+        code = request.GET.get('code')
+        if code:
+            token_info = sp_oauth.get_access_token(code)
+            
+    if token_info:
+        return spotipy.Spotify(auth=token_info['access_token'])
+    return None
 
-def buscar_dados_completos():
+# === FUNÇÃO AUXILIAR: FORMATAR TEMPO ===
+def formatar_tempo(ms):
+    """Transforma milissegundos (230000) em texto (3:50)"""
+    if not ms: return "0:00"
+    segundos = int((ms / 1000) % 60)
+    minutos = int((ms / (1000 * 60)) % 60)
+    return f"{minutos}:{segundos:02d}"
+
+# === BUSCA DE DADOS (Agora recebe 'sp' como argumento) ===
+def buscar_dados_completos(sp=None):
     dados = {
         'cryptos': [], 'dolar': 0, 'clima': None,
         'sistema': {
@@ -37,36 +61,62 @@ def buscar_dados_completos():
             'discos': [], 'gpu': None,
             'rede': {'ping': 0, 'nome': '...', 'download_mbps': 0, 'upload_mbps': 0, 'percent_down': 0, 'percent_up': 0}
         },
-        'spotify': None, # <--- NOVO CAMPO
+        'spotify': None,
         'erro': None
     }
     
     try:
         # --- 1. SPOTIFY API ---
-        try:
-            current = sp.current_playback()
-            if current and current.get('item'):
-                track = current['item']
-                dados['spotify'] = {
-                    'tocando': current['is_playing'],
-                    'nome': track['name'],
-                    'artista': track['artists'][0]['name'],
-                    'capa': track['album']['images'][0]['url'], # Imagem grande
-                    'link': track['external_urls']['spotify'],
-                    # Progresso em porcentagem
-                    'progresso_ms': current['progress_ms'],
-                    'duracao_ms': track['duration_ms'],
-                    'percent': (current['progress_ms'] / track['duration_ms']) * 100
-                }
-            else:
-                # Se nada estiver tocando ou Spotify fechado
-                dados['spotify'] = None
-        except Exception as e:
-            print(f"Erro Spotify: {e}")
-            dados['spotify'] = None
+        if sp:
+            try:
+                current = sp.current_playback()
+                if current and current.get('item'):
+                    track = current['item']
+                    track_id = track['id']
+                    
+                    # Verifica se deu Like (API Extra)
+                    is_liked = False
+                    try:
+                        # Retorna lista de booleans [True] ou [False]
+                        is_liked = sp.current_user_saved_tracks_contains(tracks=[track_id])[0]
+                    except: pass
 
-        # --- 2. HARDWARE (MANTIDO) ---
+                    dados['spotify'] = {
+                        'tocando': current['is_playing'],
+                        'nome': track['name'],
+                        'artista': track['artists'][0]['name'],
+                        'capa': track['album']['images'][0]['url'],
+                        'link_externo': track['external_urls']['spotify'], # <--- Para o botão "Abrir"
+                        
+                        # Tempos
+                        'progresso_ms': current['progress_ms'],
+                        'duracao_ms': track['duration_ms'],
+                        'tempo_atual': formatar_tempo(current['progress_ms']),
+                        'tempo_total': formatar_tempo(track['duration_ms']),
+                        'percent': (current['progress_ms'] / track['duration_ms']) * 100,
+                        
+                        # Controles
+                        'is_liked': is_liked,
+                        'shuffle_state': current['shuffle_state']
+                    }
+            except Exception as e:
+                print(f"Erro leitura Spotify: {e}")
+                dados['spotify'] = None
+
+        # --- 2. HARDWARE (MANTIDO IGUAL) ---
         dados['sistema']['cpu'] = psutil.cpu_percent(interval=None)
+        
+        # Temperatura CPU (Tentativa WMI para Windows)
+        try:
+            import wmi
+            import pythoncom
+            pythoncom.CoInitialize()
+            w = wmi.WMI(namespace="root\\wmi")
+            temp = w.MSAcpi_ThermalZoneTemperature()[0].CurrentTemperature
+            dados['sistema']['cpu_temp'] = round((temp / 10.0) - 273.15, 1)
+        except:
+            dados['sistema']['cpu_temp'] = "--"
+
         mem = psutil.virtual_memory()
         dados['sistema']['ram_percent'] = mem.percent
         dados['sistema']['ram_total'] = round(mem.total / (1024**3), 1)
@@ -78,8 +128,10 @@ def buscar_dados_completos():
                 if 'cdrom' in p.opts or p.fstype == '': continue
                 uso = psutil.disk_usage(p.mountpoint)
                 dados['sistema']['discos'].append({
-                    'letra': p.device, 'percent': uso.percent,
-                    'total': round(uso.total / (1024**3), 0), 'tipo': 'SSD/Sistema' if 'C' in p.device else 'HDD/Dados'
+                    'letra': p.device.replace('\\', ''), 
+                    'percent': uso.percent,
+                    'total': round(uso.total / (1024**3), 0), 
+                    'tipo': 'SSD/Sys' if 'C' in p.device else 'HDD/Data'
                 })
             except: pass
 
@@ -88,68 +140,101 @@ def buscar_dados_completos():
             pynvml.nvmlInit()
             handle = pynvml.nvmlDeviceGetHandleByIndex(0)
             nome = pynvml.nvmlDeviceGetName(handle)
-            if isinstance(nome, bytes): nome = nome.decode('utf-8')
+            # Correção para string em Python 3
+            if not isinstance(nome, str): nome = nome.decode('utf-8') 
+            
             util = pynvml.nvmlDeviceGetUtilizationRates(handle)
             mem_info = pynvml.nvmlDeviceGetMemoryInfo(handle)
             temp = pynvml.nvmlDeviceGetTemperature(handle, pynvml.NVML_TEMPERATURE_GPU)
-            dados['sistema']['gpu'] = {'nome': nome, 'load': util.gpu, 'temp': temp, 'mem_total': round(mem_info.total / (1024**3), 1), 'mem_used': round(mem_info.used / (1024**3), 1)}
+            
+            # Tenta pegar consumo de energia (Watts)
+            try: power = pynvml.nvmlDeviceGetPowerUsage(handle) / 1000
+            except: power = 0
+            try: power_limit = pynvml.nvmlDeviceGetEnforcedPowerLimit(handle) / 1000
+            except: power_limit = 0
+            try: fan = pynvml.nvmlDeviceGetFanSpeed(handle)
+            except: fan = 0
+
+            dados['sistema']['gpu'] = {
+                'nome': nome, 
+                'load': util.gpu, 
+                'temp': temp, 
+                'mem_total': round(mem_info.total / (1024**3), 1), 
+                'mem_used': round(mem_info.used / (1024**3), 1),
+                'power_draw': power,
+                'power_limit': power_limit,
+                'fan_speed': fan
+            }
             pynvml.nvmlShutdown()
         except: dados['sistema']['gpu'] = None
 
         # --- 3. REDE (MANTIDO) ---
         stats = psutil.net_if_stats()
         nome_rede = "Desconectado"; tipo_conexao = "wifi"
-        if 'Ethernet' in stats and stats['Ethernet'].isup: nome_rede = "Rede Cabeada (100Mbps)"; tipo_conexao = "ethernet"
+        if 'Ethernet' in stats and stats['Ethernet'].isup: 
+            nome_rede = "Rede Cabeada"; tipo_conexao = "ethernet"
         elif 'Wi-Fi' in stats and stats['Wi-Fi'].isup:
-            tipo_conexao = "wifi"
             try:
                 wifi_cmd = subprocess.run(['netsh', 'wlan', 'show', 'interfaces'], capture_output=True, text=True, encoding='cp850')
                 ssid_match = re.search(r'SSID\s*:\s*(.*)', wifi_cmd.stdout)
                 nome_rede = ssid_match.group(1).strip() if ssid_match else "Wi-Fi"
             except: nome_rede = "Wi-Fi"
-        dados['sistema']['rede']['nome'] = nome_rede; dados['sistema']['rede']['tipo'] = tipo_conexao
+        dados['sistema']['rede']['nome'] = nome_rede
 
-        io_1 = psutil.net_io_counters(); time.sleep(0.5); io_2 = psutil.net_io_counters()
-        mbps_down = ((io_2.bytes_recv - io_1.bytes_recv) * 2 * 8) / 1_000_000
-        mbps_up = ((io_2.bytes_sent - io_1.bytes_sent) * 2 * 8) / 1_000_000
+        io_1 = psutil.net_io_counters(); time.sleep(0.1); io_2 = psutil.net_io_counters() # Reduzi sleep para 0.1 p/ nao travar
+        mbps_down = ((io_2.bytes_recv - io_1.bytes_recv) * 8 * 10) / 1_000_000 # *10 pois sleep é 0.1
+        mbps_up = ((io_2.bytes_sent - io_1.bytes_sent) * 8 * 10) / 1_000_000
+        
         dados['sistema']['rede']['download_mbps'] = round(mbps_down, 1)
         dados['sistema']['rede']['upload_mbps'] = round(mbps_up, 1)
-        dados['sistema']['rede']['percent_down'] = round((mbps_down/100)*100 if (mbps_down/100)*100 <= 100 else 100, 1)
-        dados['sistema']['rede']['percent_up'] = round((mbps_up/100)*100 if (mbps_up/100)*100 <= 100 else 100, 1)
 
+        # Ping
         try:
-            ping_cmd = subprocess.run(['ping', '-n', '1', '-w', '1000', '8.8.8.8'], capture_output=True, text=True)
+            # -w 500 para ser mais rápido
+            ping_cmd = subprocess.run(['ping', '-n', '1', '-w', '500', '8.8.8.8'], capture_output=True, text=True)
             if "tempo=" in ping_cmd.stdout: ping_ms = int(re.search(r'tempo=(\d+)', ping_cmd.stdout).group(1))
             elif "time=" in ping_cmd.stdout: ping_ms = int(re.search(r'time=(\d+)', ping_cmd.stdout).group(1))
-            else: ping_ms = 999
+            else: ping_ms = 0
         except: ping_ms = 0
         dados['sistema']['rede']['ping'] = ping_ms
 
         # --- 4. DADOS EXTERNOS ---
-        url_crypto = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=6&page=1&sparkline=true"
-        response_crypto = requests.get(url_crypto)
-        dados['cryptos'] = response_crypto.json()
-        
-        url_dolar = "https://economia.awesomeapi.com.br/last/USD-BRL"
-        response_dolar = requests.get(url_dolar)
-        valor_dolar = float(response_dolar.json()['USDBRL']['bid'])
-        for moeda in dados['cryptos']: moeda['preco_brl'] = moeda['current_price'] * valor_dolar
-        dados['dolar'] = valor_dolar
+        # (Se a API cair, usamos try catch para não quebrar o painel inteiro)
+        try:
+            url_crypto = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,solana,ripple,cardano,polkadot"
+            response_crypto = requests.get(url_crypto, timeout=2) # Timeout para não travar
+            dados['cryptos'] = response_crypto.json()
+            
+            url_dolar = "https://economia.awesomeapi.com.br/last/USD-BRL"
+            response_dolar = requests.get(url_dolar, timeout=2)
+            valor_dolar = float(response_dolar.json()['USDBRL']['bid'])
+            dados['dolar'] = valor_dolar
+            
+            # Converte para BRL
+            if isinstance(dados['cryptos'], list):
+                for moeda in dados['cryptos']: 
+                    moeda['preco_brl'] = moeda['current_price'] * valor_dolar
+        except: pass # Ignora erro de API externa
 
-        lat = os.getenv('MY_LAT')
-        lng = os.getenv('MY_LNG')
-        url_clima = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lng}&current=temperature_2m,weather_code&timezone=America%2FSao_Paulo"
-        clima_json = requests.get(url_clima).json()
-        dados['clima'] = {'temp': clima_json['current']['temperature_2m'], 'codigo': clima_json['current']['weather_code']}
+        # Clima
+        try:
+            lat = os.getenv('MY_LAT', '-23.55')
+            lng = os.getenv('MY_LNG', '-46.63')
+            url_clima = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lng}&current=temperature_2m,weather_code&timezone=America%2FSao_Paulo"
+            clima_json = requests.get(url_clima, timeout=2).json()
+            dados['clima'] = {'temp': clima_json['current']['temperature_2m'], 'codigo': clima_json['current']['weather_code']}
+        except: pass
         
     except Exception as e:
-        dados['erro'] = f"Erro: {str(e)}"
+        dados['erro'] = f"Erro Geral: {str(e)}"
     
     return dados
 
-# --- ENDPOINTS ---
+# --- ENDPOINTS (VIEWS) ---
+
 def home(request):
-    info = buscar_dados_completos()
+    sp = get_spotify_client(request) # Cria cliente
+    info = buscar_dados_completos(sp) # Passa cliente
     
     notas = Anotacao.objects.order_by('-criado_em')
     info['notas'] = notas 
@@ -157,30 +242,66 @@ def home(request):
     return render(request, 'dashboard/home.html', info)
 
 def atualizar_valores(request):
-    info = buscar_dados_completos()
+    sp = get_spotify_client(request) # Cria cliente
+    info = buscar_dados_completos(sp) # Passa cliente
     return render(request, 'dashboard/cards.html', info)
 
-def executar_acao(request, comando):
-    # Mantemos sua função de controle via OS/PyAutoGUI aqui
+# --- COMANDOS DO SPOTIFY (VIA API) ---
+def comando_spotify(request, comando):
+    sp = get_spotify_client(request)
+    if not sp: return HttpResponse(status=204)
+
     try:
-        if comando == 'calc': subprocess.Popen('calc.exe')
-        elif comando == 'vol_up': pyautogui.press('volumeup'); pyautogui.press('volumeup')
-        elif comando == 'vol_down': pyautogui.press('volumedown'); pyautogui.press('volumedown')
-        elif comando == 'play': pyautogui.press('playpause')
-        elif comando == 'next': pyautogui.press('nexttrack')
-        elif comando == 'prev': pyautogui.press('prevtrack')
-        # ... seus outros comandos ...
-    except: pass
+        if comando == 'next': sp.next_track()
+        elif comando == 'prev': sp.previous_track()
+        elif comando == 'play':
+            current = sp.current_playback()
+            if current and current['is_playing']: sp.pause_playback()
+            else: sp.start_playback()
+            
+        elif comando == 'shuffle':
+            current = sp.current_playback()
+            novo_estado = not current['shuffle_state']
+            sp.shuffle(novo_estado)
+            
+        elif comando == 'like':
+            current = sp.current_playback()
+            if current and current.get('item'):
+                track_id = current['item']['id']
+                ja_curtiu = sp.current_user_saved_tracks_contains(tracks=[track_id])[0]
+                if ja_curtiu:
+                    sp.current_user_saved_tracks_delete(tracks=[track_id])
+                else:
+                    sp.current_user_saved_tracks_add(tracks=[track_id])
+                    
+        # Controles de Volume (Mantivemos PyAutoGUI para controlar o PC todo, não só o Spotify)
+        elif comando == 'vol_up': 
+            pyautogui.press('volumeup'); pyautogui.press('volumeup')
+        elif comando == 'vol_down': 
+            pyautogui.press('volumedown'); pyautogui.press('volumedown')
+
+    except Exception as e:
+        print(f"Erro comando: {e}")
+
     return HttpResponse(status=204)
 
-# --- FUNÇÕES DO LOG DE BORDO ---
+def login_spotify(request):
+    # Gera o link oficial de login do Spotify com as permissões novas
+    auth_url = sp_oauth.get_authorize_url()
+    return redirect(auth_url)
+
+def callback(request):
+    code = request.GET.get('code')
+    if code:
+        sp_oauth.get_access_token(code)
+    return redirect('home')
+
+# --- NOTAS ---
 def adicionar_nota(request):
     if request.method == "POST":
         texto_nota = request.POST.get('texto')
         if texto_nota:
             Anotacao.objects.create(texto=texto_nota)
-    
-    # Retorna apenas a lista atualizada (HTML parcial)
     notas = Anotacao.objects.order_by('-criado_em')
     return render(request, 'dashboard/partials/lista_notas.html', {'notas': notas})
 
@@ -188,9 +309,6 @@ def deletar_nota(request, nota_id):
     try:
         nota = Anotacao.objects.get(id=nota_id)
         nota.delete()
-    except:
-        pass
-    
-    # Retorna apenas a lista atualizada
+    except: pass
     notas = Anotacao.objects.order_by('-criado_em')
     return render(request, 'dashboard/partials/lista_notas.html', {'notas': notas})
