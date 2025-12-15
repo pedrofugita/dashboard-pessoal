@@ -1,171 +1,243 @@
-<div class="d-flex flex-column gap-3 h-100">
+<div class="d-grid gap-3 h-100" style="grid-template-columns: 1fr 1fr 1fr;">
 
-    <div class="glass-panel position-relative overflow-hidden flex-shrink-0 d-flex align-items-end p-0" 
-         style="height: 140px; border: 0;">
+    <!-- COLUNA 1 -->
+    <div class="d-flex flex-column gap-3">
         
-        {% if spotify and spotify.tocando %}
-            <div style="position: absolute; inset: 0; background: url('{{ spotify.capa }}') center/cover; filter: blur(15px) brightness(0.4); z-index: 0;"></div>
+        <!-- CELULA 1: HORA, DATA, CLIMA-->
+        <div class="glass-panel p-3 text-center" style="border-left: 2px solid var(--neon-red);">
+            <div id="relogio" class="display-3 fw-bold text-white num-mono lh-1">--:--</div>
+            <div id="data-hoje" class="text-secondary text-capitalize mb-2">--</div>
+            <div class="border-top border-light border-opacity-10 pt-2 d-flex justify-content-center align-items-center gap-2">
+                {% if clima %}
+                    <i class="bi bi-cloud-drizzle fs-5 text-info"></i>
+                    <span class="fs-4 fw-bold num-mono text-info">{{ clima.temp }}°C</span>
+                {% else %}
+                    <small class="text-muted">Scanner Offline</small>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- CELULA 2: MONITORAMENTO DO SISTEMA -->
+        <div class="glass-panel p-3 flex-grow-1 d-flex flex-column" style="border-left: 2px solid var(--neon-red);">
+            <span class="label-tech mb-3">SISTEMA</span>
             
-            <div class="d-flex w-100 p-3 align-items-center position-relative" style="z-index: 1;">
-                <img src="{{ spotify.capa }}" class="rounded-3 shadow-lg me-3" style="height: 90px; width: 90px; border: 1px solid rgba(255,255,255,0.2);">
-                
-                <div class="flex-grow-1 overflow-hidden">
-                    <span class="badge bg-success bg-opacity-75 mb-1" style="font-size: 0.6rem; letter-spacing: 1px;">SPOTIFY CONNECT</span>
-                    <h3 class="mb-0 fw-bold text-white text-truncate" style="font-family: 'Rajdhani'; font-size: 1.8rem; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">{{ spotify.nome }}</h3>
-                    <p class="text-white-50 mb-2 text-truncate font-monospace small">{{ spotify.artista }}</p>
-                    
-                    <div class="progress bg-white bg-opacity-10" style="height: 3px;">
-                        <div class="progress-bar bg-success box-shadow-glow" style="width: {{ spotify.percent }}%"></div>
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <div class="bg-black bg-opacity-25 p-2 rounded border border-secondary border-opacity-25">
+                        <span class="label-tech bi bi-cpu text-secondary fs-6"> CPU</span>
+                        <div class="d-flex align-items-end justify-content-between">
+                            <span class="fs-4 num-mono text-white">{{ sistema.cpu }}%</span>
+                        </div>
+                        <div class="progress bg-dark mt-1" style="height: 4px;">
+                            <div class="progress-bar {% if sistema.cpu > 95 %}bg-danger{% elif sistema.cpu > 75 %}bg-warning{% else %}bg-primary{% endif %}" style="width: {{ sistema.cpu }}%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="bg-black bg-opacity-25 p-2 rounded border border-secondary border-opacity-25">
+                        <span class="label-tech bi bi-gpu-card text-secondary fs-6"> GPU</span>
+                        <div class="d-flex align-items-end justify-content-between">
+                            <span class="fs-4 num-mono text-white">{{ sistema.gpu.load }}%</span>
+                        </div>
+                        <div class="progress bg-dark mt-1" style="height: 4px;">
+                            <div class="progress-bar {% if sistema.gpu.load > 95 %}bg-danger{% elif sistema.gpu.load > 75 %}bg-warning{% else %}bg-primary{% endif %}" style="width: {{ sistema.gpu.load }}%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="bg-black bg-opacity-25 p-2 rounded border border-secondary border-opacity-25">
+                        <span class="label-tech bi bi-memory text-secondary fs-6"> RAM</span>
+                        <div class="d-flex align-items-end justify-content-between">
+                            <span class="fs-4 num-mono text-white">{{ sistema.ram_percent }}%</span>
+                        </div>
+                        <div class="progress bg-dark mt-1" style="height: 4px;">
+                            <div class="progress-bar {% if sistema.ram_percent > 95 %}bg-danger{% elif sistema.ram_percent > 75 %}bg-warning{% else %}bg-primary{% endif %}" style="width: {{ sistema.ram_percent }}%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="bg-black bg-opacity-25 p-2 rounded border border-secondary border-opacity-25">
+                        <span class="label-tech bi bi-fan text-secondary fs-6"> FAN</span>
+                        <div class="d-flex align-items-end justify-content-between">
+                            <span class="fs-4 num-mono text-white">{{ sistema.ram_percent }}rpm</span>
+                        </div>
+                        <div class="progress bg-dark mt-1" style="height: 4px;">
+                            <div class="progress-bar {% if sistema.ram_percent > 95 %}bg-danger{% elif sistema.ram_percent > 75 %}bg-warning{% else %}bg-primary{% endif %}" style="width: {{ sistema.ram_percent }}%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="bg-black bg-opacity-25 p-2 rounded border border-secondary border-opacity-25">
+                        <span class="label-tech bi bi-device-ssd-fill text-secondary fs-6"> SSD (C:)</span>
+                        <div class="d-flex align-items-end justify-content-between">
+                            <span class="fs-4 num-mono text-white">{{ sistema.discos.0.percent }}%</span>
+                        </div>
+                        <div class="progress bg-dark mt-1" style="height: 4px;">
+                            <div class="progress-bar {% if sistema.discos.0.percent > 95 %}bg-danger{% elif sistema.discos.0.percent > 75 %}bg-warning{% else %}bg-primary{% endif %}" style="width: {{ sistema.discos.0.percent }}%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="bg-black bg-opacity-25 p-2 rounded border border-secondary border-opacity-25">
+                        <span class="label-tech bi bi-device-hdd-fill text-secondary fs-6"> HDD (D:)</span>
+                        <div class="d-flex align-items-end justify-content-between">
+                            <span class="fs-4 num-mono text-white">{{ sistema.discos.1.percent }}%</span>
+                        </div>
+                        <div class="progress bg-dark mt-1" style="height: 4px;">
+                            <div class="progress-bar {% if sistema.discos.1.percent > 95 %}bg-danger{% elif sistema.discos.1.percent > 75 %}bg-warning{% else %}bg-primary{% endif %}" style="width: {{ sistema.discos.1.percent }}%"></div>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="d-flex flex-column gap-2 ms-3">
-                    <button class="btn btn-sm btn-outline-light rounded-circle border-0 bg-white bg-opacity-10 backdrop-blur" hx-get="/comando/next" hx-swap="none"><i class="bi bi-skip-forward-fill"></i></button>
-                    <button class="btn btn-sm btn-outline-light rounded-circle border-0 bg-white bg-opacity-10 backdrop-blur" hx-get="/comando/play" hx-swap="none"><i class="bi bi-pause-fill"></i></button>
+                <span class="label-tech">Network</span>
+                <div class="col-6">
+                    <div class="bg-black bg-opacity-25 p-2 rounded border border-secondary border-opacity-25">
+                        <span class="label-tech bi bi-arrow-down-short text-secondary fs-6"> DOWNLOAD</span>
+                        <div class="d-flex align-items-end justify-content-between">
+                            <span class="fs-4 num-mono text-white">{{ sistema.rede.download_mbps }}Mpbs</span>
+                        </div>
+                        <div class="progress bg-dark mt-1" style="height: 4px;">
+                            <div class="progress-bar {% if sistema.rede.download_mbps > 95 %}bg-danger{% elif sistema.rede.download_mbps > 75 %}bg-warning{% else %}bg-primary{% endif %}" style="width: {{ sistema.rede.download_mbps }}%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="bg-black bg-opacity-25 p-2 rounded border border-secondary border-opacity-25">
+                        <span class="label-tech bi bi-arrow-up-short text-secondary fs-6"> UPLOAD</span>
+                        <div class="d-flex align-items-end justify-content-between">
+                            <span class="fs-4 num-mono text-white">{{ sistema.rede.upload_mbps }}Mbps</span>
+                        </div>
+                        <div class="progress bg-dark mt-1" style="height: 4px;">
+                            <div class="progress-bar {% if sistema.rede.upload_mbps > 95 %}bg-danger{% elif sistema.rede.upload_mbps > 75 %}bg-warning{% else %}bg-primary{% endif %}" style="width: {{ sistema.rede.upload_mbps }}%"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        {% else %}
-            <div class="d-flex align-items-center justify-content-center w-100 h-100 bg-dark bg-opacity-50">
-                <div class="text-center text-white-50">
-                    <i class="bi bi-vinyl fs-1 opacity-25"></i>
-                    <p class="small mt-2 font-monospace">AGUARDANDO SINAL DE ÁUDIO...</p>
-                </div>
-            </div>
-        {% endif %}
+        </div>
     </div>
 
-    <div class="flex-grow-1 d-grid gap-3" style="grid-template-columns: 1fr 1fr 1fr;">
+    <div class="d-flex flex-column gap-3">
         
-        <div class="glass-panel p-3 position-relative d-flex flex-column justify-content-between overflow-hidden" style="border-top: 2px solid var(--neon-cyan);">
-            <i class="bi bi-cpu position-absolute" style="font-size: 8rem; right: -20px; bottom: -20px; opacity: 0.05; transform: rotate(-15deg);"></i>
-            
-            <svg class="position-absolute start-0 bottom-0 w-100 h-50" style="opacity: 0.1; pointer-events: none;" preserveAspectRatio="none">
-                <path d="M0,50 Q20,40 40,60 T80,40 T120,70 T160,30 T200,50 L200,100 L0,100 Z" fill="var(--neon-cyan)" />
-                <path d="M0,50 Q20,40 40,60 T80,40 T120,70 T160,30 T200,50" fill="none" stroke="var(--neon-cyan)" stroke-width="2" />
-            </svg>
-
-            <div>
-                <span class="label-tech glow-text-cyan">CPU CORE</span>
-                <div class="d-flex align-items-baseline">
-                    <span class="display-4 fw-bold val-tech text-white">{{ sistema.cpu }}</span>
-                    <span class="fs-5 text-secondary ms-1">%</span>
-                </div>
-            </div>
-            
-            <div class="mt-3">
-                <div class="d-flex justify-content-between mb-1">
-                    <span class="small font-monospace text-white-50">RAM LOAD</span>
-                    <span class="small font-monospace text-white">{{ sistema.ram_used }}G</span>
-                </div>
-                <div class="progress bg-dark" style="height: 6px;">
-                    <div class="progress-bar" style="width: {{ sistema.ram_percent }}%; background-color: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan);"></div>
-                </div>
+        <div class="glass-panel p-3" style="border-left: 2px solid var(--neon-purple);">
+            <span class="label-tech mb-2">Quick Links</span>
+            <div class="d-grid gap-2" style="grid-template-columns: 1fr 1fr 1fr;">
+                <a href="https://chat.openai.com" target="_blank" class="btn-launch">
+                    <i class="bi bi-robot"></i> <span>GPT</span>
+                </a>
+                <a href="https://youtube.com" target="_blank" class="btn-launch">
+                    <i class="bi bi-youtube"></i> <span>YT</span>
+                </a>
+                <a href="https://github.com" target="_blank" class="btn-launch">
+                    <i class="bi bi-github"></i> <span>Git</span>
+                </a>
+                <a href="https://www2.unesp.br" target="_blank" class="btn-launch">
+                    <i class="bi bi-mortarboard"></i> <span>Unesp</span>
+                </a>
+                <a href="https://web.whatsapp.com" target="_blank" class="btn-launch">
+                    <i class="bi bi-whatsapp"></i> <span>Zap</span>
+                </a>
+                <a href="https://mail.google.com" target="_blank" class="btn-launch">
+                    <i class="bi bi-envelope"></i> <span>Mail</span>
+                </a>
             </div>
         </div>
 
-        <div class="glass-panel p-3 position-relative d-flex flex-column justify-content-between overflow-hidden" style="border-top: 2px solid var(--neon-purple);">
-            <i class="bi bi-hdd-network position-absolute" style="font-size: 8rem; right: -20px; bottom: -20px; opacity: 0.05;"></i>
-
-            <div>
-                <span class="label-tech glow-text-pink">STORAGE & NET</span>
-                {% for disco in sistema.discos %}
-                    <div class="mb-2 position-relative" style="z-index: 1;">
-                        <div class="d-flex justify-content-between small mb-1">
-                            <span class="font-monospace text-white-50">{{ disco.letra }} [{{ disco.tipo }}]</span>
-                            <span class="font-monospace {% if disco.percent > 90 %}text-danger{% else %}text-white{% endif %}">{{ disco.percent }}%</span>
-                        </div>
-                        <div class="progress bg-dark" style="height: 4px;">
-                            <div class="progress-bar bg-light" style="width: {{ disco.percent }}%"></div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-
-            <div class="row g-2 mt-2">
-                <div class="col-6">
-                    <div class="p-2 rounded bg-dark bg-opacity-50 text-center border border-secondary border-opacity-25">
-                        <i class="bi bi-arrow-down-short text-info"></i>
-                        <span class="d-block val-tech fs-6">{{ sistema.rede.download_mbps }}</span>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="p-2 rounded bg-dark bg-opacity-50 text-center border border-secondary border-opacity-25">
-                        <i class="bi bi-arrow-up-short text-warning"></i>
-                        <span class="d-block val-tech fs-6">{{ sistema.rede.upload_mbps }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="glass-panel p-3 position-relative d-flex flex-column text-center justify-content-center" style="border-top: 2px solid var(--neon-yellow);">
-            <i class="bi bi-gpu-card position-absolute" style="font-size: 8rem; left: 50%; top: 50%; transform: translate(-50%, -50%); opacity: 0.03;"></i>
-
-            <span class="label-tech text-warning mb-3">{{ sistema.gpu.nome|default:"NO GPU DETECTED" }}</span>
+        <div class="glass-panel p-0 flex-grow-1 position-relative d-flex flex-column" style="border-left: 2px solid var(--neon-purple);">
             
-            {% if sistema.gpu %}
-                <div class="position-relative mx-auto mb-3" style="width: 100px; height: 100px;">
-                    <div class="position-absolute w-100 h-100 rounded-circle" 
-                         style="border: 2px dashed rgba(255,255,255,0.2); animation: spin 10s linear infinite;"></div>
-                    
-                    <div class="position-absolute w-100 h-100 rounded-circle d-flex align-items-center justify-content-center"
-                         style="background: conic-gradient(var(--neon-yellow) {{ sistema.gpu.load }}%, transparent 0);">
-                        <div class="bg-dark rounded-circle d-flex flex-column align-items-center justify-content-center" style="width: 85px; height: 85px;">
-                            <span class="display-6 fw-bold val-tech text-white">{{ sistema.gpu.temp }}°</span>
-                            <span class="small text-muted" style="font-size: 0.6rem;">TEMP</span>
-                        </div>
+            {% if spotify and spotify.tocando %}
+                <div style="position: absolute; inset: 0; background: url('{{ spotify.capa }}') center/cover; filter: blur(20px) brightness(0.3); z-index: 0;"></div>
+                
+                <div class="p-4 d-flex flex-column h-100 position-relative" style="z-index: 1;">
+                    <div class="text-center mt-3">
+                        <img src="{{ spotify.capa }}" class="rounded shadow-lg border border-white border-opacity-25" style="width: 180px; height: 180px;">
+                        <h4 class="mt-3 mb-0 text-white fw-bold text-truncate">{{ spotify.nome }}</h4>
+                        <p class="text-white-50">{{ spotify.artista }}</p>
                     </div>
-                </div>
 
-                <div class="row g-1 w-100 px-2">
-                    <div class="col-6 text-start">
-                        <span class="label-tech mb-0">VRAM</span>
-                        <small class="val-tech text-white">{{ sistema.gpu.mem_used }}G</small>
-                        <div class="progress bg-dark mt-1" style="height: 3px;">
-                            <div class="progress-bar bg-warning" style="width: {{ sistema.gpu.load }}%"></div>
-                        </div>
+                    <div class="flex-grow-1 d-flex align-items-center">
+                        <canvas id="audio-visualizer" class="w-100 rounded" style="height: 80px; background: rgba(0,0,0,0.2);"></canvas>
                     </div>
-                    <div class="col-6 text-end">
-                        <span class="label-tech mb-0">FAN</span>
-                        <small class="val-tech text-white">AUTO</small>
-                        <div class="progress bg-dark mt-1" style="height: 3px;">
-                            <div class="progress-bar bg-success" style="width: 60%"></div>
+
+                    <div class="mt-auto">
+                        <div class="progress bg-white bg-opacity-10 mb-3" style="height: 4px;">
+                            <div class="progress-bar bg-success box-shadow-glow" style="width: {{ spotify.percent }}%"></div>
+                        </div>
+
+                        <div class="d-flex justify-content-center align-items-center gap-4 mb-3">
+                            <button class="btn btn-outline-light rounded-circle border-0 fs-4" hx-get="/comando/prev" hx-swap="none"><i class="bi bi-skip-backward-fill"></i></button>
+                            <button class="btn btn-light rounded-circle fs-2 shadow-lg" hx-get="/comando/play" hx-swap="none"><i class="bi bi-play-fill text-dark"></i></button>
+                            <button class="btn btn-outline-light rounded-circle border-0 fs-4" hx-get="/comando/next" hx-swap="none"><i class="bi bi-skip-forward-fill"></i></button>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2 bg-black bg-opacity-40 p-2 rounded-pill border border-white border-opacity-10 w-75 mx-auto">
+                            <button class="btn btn-sm btn-link text-white p-0" hx-get="/comando/vol_down" hx-swap="none"><i class="bi bi-dash-lg"></i></button>
+                            <div class="flex-grow-1 text-center small text-secondary">VOLUME PC</div>
+                            <button class="btn btn-sm btn-link text-white p-0" hx-get="/comando/vol_up" hx-swap="none"><i class="bi bi-plus-lg"></i></button>
+                            <button class="btn btn-sm btn-outline-secondary rounded-circle ms-2" onclick="alternarAudio()"><i id="btn-audio-icon" class="bi bi-play-fill"></i></button>
                         </div>
                     </div>
                 </div>
             {% else %}
-                <span class="text-white-50 my-auto">iGPU MODE</span>
+                <div class="d-flex flex-column align-items-center justify-content-center h-100 text-white-50">
+                    <i class="bi bi-spotify" style="font-size: 5rem; opacity: 0.2;"></i>
+                    <p class="mt-3 font-monospace">AGUARDANDO SPOTIFY...</p>
+                    <div class="mt-5 w-75">
+                         <canvas id="audio-visualizer" class="w-100 rounded" style="height: 60px; background: rgba(0,0,0,0.2);"></canvas>
+                         <button class="btn btn-outline-light btn-sm w-100 mt-2" onclick="alternarAudio()">Ligar Visualizer (Microfone)</button>
+                    </div>
+                </div>
             {% endif %}
         </div>
-
     </div>
 
-    <div class="glass-panel px-3 py-2 flex-shrink-0 d-flex align-items-center" style="height: 60px; border-left: 0; border-bottom: 2px solid var(--neon-green);">
-        <span class="label-tech me-3 border-end border-light border-opacity-10 pe-3 d-none d-md-block my-0">MARKET DATA</span>
+    <div class="d-flex flex-column gap-3">
         
-        <div class="d-flex align-items-center gap-3 overflow-x-auto h-100" style="scrollbar-width: none;">
-            {% for moeda in cryptos %}
-            <div class="d-flex align-items-center bg-black bg-opacity-40 rounded px-3 py-1 border border-light border-opacity-10">
-                <img src="{{ moeda.image }}" width="18" class="me-2 rounded-circle grayscale">
-                <span class="fw-bold me-2 small font-monospace">{{ moeda.symbol|upper }}</span>
-                <span class="small me-2 text-white font-monospace">${{ moeda.current_price|floatformat:0 }}</span>
-                
-                {% if moeda.price_change_percentage_24h > 0 %}
-                    <i class="bi bi-caret-up-fill text-success" style="font-size: 0.7rem;"></i>
-                    <small class="text-success font-monospace">{{ moeda.price_change_percentage_24h|floatformat:1 }}%</small>
-                {% else %}
-                    <i class="bi bi-caret-down-fill text-danger" style="font-size: 0.7rem;"></i>
-                    <small class="text-danger font-monospace">{{ moeda.price_change_percentage_24h|floatformat:1 }}%</small>
-                {% endif %}
+        <div class="glass-panel p-3 flex-grow-1 d-flex flex-column" style="border-left: 2px solid var(--neon-green);">
+            <span class="label-tech text-success mb-2">Mission Log</span>
+            
+            <form hx-post="{% url 'adicionar_nota' %}" hx-target="#lista-notas-container" hx-on::after-request="this.reset()">
+                {% csrf_token %}
+                <div class="input-group mb-3">
+                    <input type="text" name="texto" class="form-control bg-dark border-secondary text-white font-monospace" placeholder="Nova tarefa..." autocomplete="off">
+                    <button class="btn btn-outline-success" type="submit"><i class="bi bi-plus-lg"></i></button>
+                </div>
+            </form>
+
+            <div id="lista-notas-container" class="overflow-auto flex-grow-1 pe-2">
+                {% include 'dashboard/partials/lista_notas.html' %}
             </div>
-            {% endfor %}
+        </div>
+
+        <div class="glass-panel p-3" style="border-left: 2px solid var(--neon-yellow); min-height: 250px;">
+            <span class="label-tech text-warning mb-3">Market Watch</span>
+            <div class="d-flex flex-column gap-2">
+                {% for moeda in cryptos|slice:":6" %}
+                <div class="d-flex align-items-center justify-content-between p-2 rounded bg-white bg-opacity-5 border border-white border-opacity-5">
+                    <div class="d-flex align-items-center">
+                        <img src="{{ moeda.image }}" width="24" class="rounded-circle me-2">
+                        <div>
+                            <span class="fw-bold d-block lh-1 small">{{ moeda.symbol|upper }}</span>
+                            <small class="text-secondary" style="font-size: 0.65rem;">{{ moeda.name }}</small>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="d-block num-mono small">${{ moeda.current_price|floatformat:0 }}</span>
+                        {% if moeda.price_change_percentage_24h > 0 %}
+                            <small class="text-success num-mono">{{ moeda.price_change_percentage_24h|floatformat:1 }}%</small>
+                        {% else %}
+                            <small class="text-danger num-mono">{{ moeda.price_change_percentage_24h|floatformat:1 }}%</small>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
 
 </div>
-
-<style>
-    @keyframes spin { 100% { transform: rotate(360deg); } }
-    .grayscale { filter: grayscale(100%); transition: filter 0.3s; }
-    .grayscale:hover { filter: grayscale(0%); }
-    .box-shadow-glow { box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
-</style>

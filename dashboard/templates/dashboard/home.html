@@ -16,13 +16,12 @@
         :root {
             --neon-cyan: #00f3ff;
             --neon-purple: #bc13fe;
-            --neon-pink: #ff0055;
             --neon-green: #0aff0a;
             --neon-yellow: #fcd34d;
+            --neon-red: #ff0055;
             --bg-dark: #050505;
             
-            /* Glassmorphism Variables */
-            --glass-bg: rgba(20, 20, 20, 0.65);
+            --glass-bg: rgba(20, 20, 20, 0.75);
             --glass-border: rgba(255, 255, 255, 0.08);
             --glass-blur: 12px;
         }
@@ -34,7 +33,6 @@
             height: 100vh;
             margin: 0;
             overflow: hidden;
-            /* Fundo Grid Tech */
             background-image: 
                 linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
@@ -45,183 +43,107 @@
         h1, h2, h3, h4, h5, .label-tech { font-family: 'Orbitron', sans-serif; letter-spacing: 1px; }
         .val-tech, .num-mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* === LAYOUT BENTO BOX === */
-        .main-grid {
-            display: grid;
-            grid-template-columns: 280px 1fr; /* Lateral levemente mais larga */
-            grid-template-rows: 100%;
-            gap: 20px; /* Gap consistente */
-            height: 100vh;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        /* === GLASSMORPHISM CARDS === */
+        /* === GLASS PANEL === */
         .glass-panel {
             background: var(--glass-bg);
             backdrop-filter: blur(var(--glass-blur));
             -webkit-backdrop-filter: blur(var(--glass-blur));
             border: 1px solid var(--glass-border);
-            border-radius: 12px; /* Mais arredondado */
+            border-radius: 12px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            position: relative;
             overflow: hidden;
-            transition: border-color 0.3s;
-        }
-        
-        .glass-panel:hover {
-            border-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* Labels e Botões */
-        .label-tech { 
-            font-size: 0.6rem; 
-            color: rgba(255,255,255,0.5); 
-            text-transform: uppercase; 
-            margin-bottom: 8px; 
-            display: block; 
-        }
-        
+        .label-tech { font-size: 0.7rem; color: rgba(255,255,255,0.5); text-transform: uppercase; margin-bottom: 5px; display: block; }
+
+        /* === BOTÕES E LINKS === */
         .btn-launch {
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.05);
             color: #aaa;
             text-decoration: none;
-            padding: 10px 15px;
-            font-size: 0.85rem;
+            padding: 12px;
+            font-size: 0.9rem;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            border-radius: 6px;
+            justify-content: center;
+            border-radius: 8px;
             transition: all 0.2s;
-            margin-bottom: 8px;
-            font-family: 'Rajdhani', sans-serif;
-            font-weight: 600;
+            height: 80px;
         }
         .btn-launch:hover {
             border-color: var(--neon-cyan);
             color: #fff;
             background: rgba(0, 243, 255, 0.1);
-            box-shadow: 0 0 10px rgba(0, 243, 255, 0.1);
-            transform: translateX(3px);
+            transform: translateY(-2px);
         }
+        .btn-launch i { font-size: 1.5rem; margin-bottom: 5px; color: var(--neon-cyan); }
 
-        /* SCROLLBAR FINA */
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--neon-cyan); }
 
-        /* ANIMAÇÃO DE GLOW */
-        .glow-text-cyan { text-shadow: 0 0 5px var(--neon-cyan); color: var(--neon-cyan); }
-        .glow-text-pink { text-shadow: 0 0 5px var(--neon-pink); color: var(--neon-pink); }
-        .glow-box { box-shadow: 0 0 15px rgba(0, 243, 255, 0.1); }
-
-        @media (max-width: 768px) {
-            body { height: auto; overflow-y: auto; }
-            .main-grid { display: flex; flex-direction: column; height: auto; }
-        }
     </style>
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 
-    <div class="main-grid">
-        
-        <aside class="d-flex flex-column gap-3">
-            
-            <div id="relogio-card" class="glass-panel p-4 text-center d-flex flex-column justify-content-center" style="min-height: 140px;">
-                <div id="relogio" class="fw-bold lh-1 text-white num-mono" style="font-size: 3.5rem; letter-spacing: -2px;">--:--</div>
-                <div id="data-hoje" class="text-secondary small mt-1 mb-3" style="letter-spacing: 2px;">--/--</div>
-                
-                <div class="d-flex justify-content-center align-items-center gap-3 pt-3 border-top border-light border-opacity-10">
-                    {% if clima %}
-                        <i class="bi bi-cloud-haze2 fs-4 text-warning"></i>
-                        <span class="fw-bold fs-4 num-mono text-warning">{{ clima.temp }}°</span>
-                    {% else %}
-                        <span class="text-muted small">Scanner Offline</span>
-                    {% endif %}
-                </div>
-            </div>
+    <main id="painel-dinamico"
+          class="h-100 w-100 p-3"
+          hx-get="{% url 'atualizar_valores' %}"
+          hx-trigger="every 10s"
+          hx-swap="innerHTML">
+          
+          {% include 'dashboard/cards.html' %}
 
-            <div class="glass-panel p-3 flex-grow-1 d-flex flex-column overflow-hidden">
-                <span class="label-tech">Protocolos & Apps</span>
-                
-                <div class="overflow-auto pe-2 flex-grow-1 mb-3">
-                    <a href="https://chat.openai.com" target="_blank" class="btn-launch"><i class="bi bi-cpu"></i> ChatGPT AI</a>
-                    <a href="https://www2.unesp.br" target="_blank" class="btn-launch"><i class="bi bi-mortarboard"></i> UNESP Portal</a>
-                    <a href="https://github.com" target="_blank" class="btn-launch"><i class="bi bi-github"></i> Repositórios</a>
-                    <a href="https://youtube.com" target="_blank" class="btn-launch"><i class="bi bi-youtube"></i> Media Stream</a>
-                </div>
-
-                <div class="mt-auto border-top border-light border-opacity-10 pt-3">
-                    <span class="label-tech text-success">Terminal Log</span>
-                    <form hx-post="{% url 'adicionar_nota' %}" hx-target="#lista-notas-container" hx-on::after-request="this.reset()">
-                        {% csrf_token %}
-                        <div class="input-group input-group-sm mb-2">
-                            <input type="text" name="texto" class="form-control bg-transparent border-secondary text-white num-mono" 
-                                   placeholder="Inserir comando..." autocomplete="off" style="font-size: 0.8rem;">
-                            <button class="btn btn-outline-secondary" type="submit">↵</button>
-                        </div>
-                    </form>
-                    <div id="lista-notas-container" class="overflow-auto" style="max-height: 80px;">
-                        {% include 'dashboard/partials/lista_notas.html' %}
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-panel p-3" style="border-bottom: 2px solid var(--neon-purple);">
-                <span class="label-tech">Audio Output</span>
-                
-                <canvas id="audio-visualizer" class="w-100 rounded mb-3" style="height: 40px; opacity: 0.7;"></canvas>
-
-                <div class="row g-2">
-                    <div class="col-8">
-                         <button id="btn-audio" class="btn btn-sm btn-outline-light w-100 h-100 d-flex align-items-center justify-content-center gap-2" onclick="alternarAudio()" style="font-size: 0.75rem;">
-                            <i class="bi bi-soundwave"></i> <span>VISUALIZER</span>
-                        </button>
-                    </div>
-                    <div class="col-4">
-                        <div class="d-flex flex-column gap-1">
-                            <button class="btn btn-sm btn-dark border-secondary p-0" hx-get="/comando/vol_up" hx-swap="none"><i class="bi bi-plus"></i></button>
-                            <button class="btn btn-sm btn-dark border-secondary p-0" hx-get="/comando/vol_down" hx-swap="none"><i class="bi bi-dash"></i></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </aside>
-
-        <main id="painel-dinamico"
-              class="d-flex flex-column h-100"
-              hx-get="{% url 'atualizar_valores' %}"
-              hx-trigger="every 10s"
-              hx-swap="innerHTML">
-              {% include 'dashboard/cards.html' %}
-        </main>
-    </div>
+    </main>
 
     <script>
+        // --- RELÓGIO (Atualiza o DOM independente do HTMX) ---
         function atualizarRelogio() {
-            const agora = new Date();
-            document.getElementById('relogio').innerText = agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-            document.getElementById('data-hoje').innerText = agora.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'});
+            const elHora = document.getElementById('relogio');
+            const elData = document.getElementById('data-hoje');
+            
+            if (elHora && elData) {
+                const agora = new Date();
+                elHora.innerText = agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+                elData.innerText = agora.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'numeric', year: 'numeric' });
+            }
         }
         setInterval(atualizarRelogio, 1000);
-        atualizarRelogio();
 
-        // Audio Visualizer
+        // --- VISUALIZADOR DE ÁUDIO (Lógica Persistente) ---
         let audioContext, analyser, source, currentStream, isRunning = false;
-        const canvas = document.getElementById('audio-visualizer');
-        const ctx = canvas.getContext('2d');
-        
-        function resizeCanvas() { canvas.width = canvas.parentElement.offsetWidth; canvas.height = 40; }
-        window.addEventListener('resize', resizeCanvas); resizeCanvas();
+        let canvas, ctx;
+
+        // Função para reconectar o canvas após o HTMX atualizar o HTML
+        function setupCanvas() {
+            canvas = document.getElementById('audio-visualizer');
+            if (canvas) {
+                ctx = canvas.getContext('2d');
+                canvas.width = canvas.parentElement.offsetWidth;
+                canvas.height = 80;
+            }
+        }
+
+        // Escuta o evento do HTMX: Sempre que o conteúdo troca, reconfigura o relógio e canvas
+        document.body.addEventListener('htmx:afterSwap', function(evt) {
+            atualizarRelogio();
+            setupCanvas();
+        });
+
+        // Inicialização
+        setupCanvas();
 
         async function alternarAudio() {
             if (isRunning) {
                 if (currentStream) currentStream.getTracks().forEach(t => t.stop());
                 if (audioContext) await audioContext.close();
                 isRunning = false;
-            } else { iniciarAudio(); }
+                document.getElementById('btn-audio-icon').className = 'bi bi-play-fill';
+            } else { 
+                iniciarAudio(); 
+            }
         }
 
         async function iniciarAudio() {
@@ -236,18 +158,31 @@
                 const bufferLength = analyser.frequencyBinCount;
                 const dataArray = new Uint8Array(bufferLength);
                 isRunning = true;
+                
+                document.getElementById('btn-audio-icon').className = 'bi bi-stop-fill text-danger';
 
                 function draw() {
                     if (!isRunning) return;
                     requestAnimationFrame(draw);
+                    
+                    if (!ctx || !canvas) return; // Segurança caso o canvas ainda não exista
+
                     analyser.getByteFrequencyData(dataArray);
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
                     const barWidth = (canvas.width / bufferLength);
                     let x = 0;
+                    
                     for(let i = 0; i < bufferLength; i++) {
                         let barHeight = (dataArray[i] / 255) * canvas.height;
-                        ctx.fillStyle = `hsl(${i * 5 + 180}, 100%, 50%)`; // Ciano p/ Azul
-                        ctx.fillRect(x, canvas.height - barHeight, barWidth - 1, barHeight);
+                        
+                        // Gradiente Roxo -> Ciano
+                        ctx.fillStyle = `hsl(${i * 4 + 260}, 100%, 60%)`; 
+                        
+                        ctx.beginPath();
+                        ctx.roundRect(x, canvas.height - barHeight, barWidth - 2, barHeight, [2, 2, 0, 0]);
+                        ctx.fill();
+                        
                         x += barWidth;
                     }
                 }
