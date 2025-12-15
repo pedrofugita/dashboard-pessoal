@@ -84,6 +84,24 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
 
+        /* Ajuste para imagens dentro dos botões de atalho */
+        .btn-launch img {
+            width: 32px;       /* Tamanho do ícone */
+            height: 32px;
+            object-fit: contain; /* Garante que o logo não estique/distorça */
+            margin-bottom: 5px;
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2)); /* Leve brilho para destacar do fundo escuro */
+            transition: transform 0.2s;
+        }
+
+        .btn-launch:hover img {
+            transform: scale(1.1); /* Efeito de zoom ao passar o mouse */
+        }
+
+        /* Opcional: Se algum logo preto (como GitHub ou UNESP) ficar ruim no fundo escuro,
+        você pode inverter as cores dele com este filtro: */
+        /* .btn-launch img[alt="Unesp"] { filter: invert(1); } */
+
     </style>
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
