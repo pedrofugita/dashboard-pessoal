@@ -22,59 +22,92 @@
             <span class="label-tech mb-3">SISTEMA</span>
             
             <div class="row g-2 mb-3">
+
                 <div class="col-6">
-                    <div class="bg-black bg-opacity-25 p-2 rounded border border-secondary border-opacity-25">
-                        <span class="label-tech bi bi-cpu text-secondary fs-6"> CPU</span>
+                    <div class="bg-black bg-opacity-25 p-2 rounded border border-secondary border-opacity-25 h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="label-tech bi bi-cpu text-secondary fs-6"> CPU</span>
+                            <small class="text-white-50 font-monospace" style="font-size: 0.6rem;">i7-7500U 7th Gen</small>
+                        </div>
                         <div class="d-flex align-items-end justify-content-between">
                             <span class="fs-4 num-mono text-white">{{ sistema.cpu }}%</span>
+                            <small class="text-white-50 font-monospace" style="font-size: 0.6rem;">2.7 a 3.5 GHz</small>
                         </div>
                         <div class="progress bg-dark mt-1" style="height: 4px;">
-                            <div class="progress-bar {% if sistema.cpu > 95 %}bg-danger{% elif sistema.cpu > 75 %}bg-warning{% else %}bg-primary{% endif %}" style="width: {{ sistema.cpu }}%"></div>
+                            <div class="progress-bar {% if sistema.cpu > 90 %}bg-danger{% elif sistema.cpu > 70 %}bg-warning{% else %}bg-primary{% endif %}" style="width: {{ sistema.cpu }}%"></div>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-6">
-                    <div class="bg-black bg-opacity-25 p-2 rounded border border-secondary border-opacity-25">
-                        <span class="label-tech bi bi-gpu-card text-secondary fs-6"> GPU</span>
+                    <div class="bg-black bg-opacity-25 p-2 rounded border border-secondary border-opacity-25 h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="label-tech bi bi-gpu-card text-secondary fs-6"> GPU</span>
+                            <small class="text-white-50 font-monospace" style="font-size: 0.6rem;">GeForce 920MX</small>
+                        </div>
                         <div class="d-flex align-items-end justify-content-between">
-                            <span class="fs-4 num-mono text-white">{{ sistema.gpu.load }}%</span>
+                            <span class="fs-4 num-mono text-white">
+                                {% if sistema.gpu %}{{ sistema.gpu.load }}%{% else %}--{% endif %}
+                            </span>
+                            <small class="text-white-50 font-monospace" style="font-size: 0.6rem;">965 a 993 MHz</small>
                         </div>
                         <div class="progress bg-dark mt-1" style="height: 4px;">
-                            <div class="progress-bar {% if sistema.gpu.load > 95 %}bg-danger{% elif sistema.gpu.load > 75 %}bg-warning{% else %}bg-primary{% endif %}" style="width: {{ sistema.gpu.load }}%"></div>
+                            <div class="progress-bar {% if sistema.gpu.load > 90 %}bg-danger{% elif sistema.gpu.load > 70 %}bg-warning{% else %}bg-primary{% endif %}" style="width: {{ sistema.gpu.load }}%"></div>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-6">
-                    <div class="bg-black bg-opacity-25 p-2 rounded border border-secondary border-opacity-25">
-                        <span class="label-tech bi bi-memory text-secondary fs-6"> RAM</span>
+                    <div class="bg-black bg-opacity-25 p-2 rounded border border-secondary border-opacity-25 h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="label-tech bi bi-memory text-secondary fs-6"> RAM</span>
+                            <small class="text-white-50 font-monospace" style="font-size: 0.6rem;">DDR4 2133 MHz</small>
+                        </div>
                         <div class="d-flex align-items-end justify-content-between">
                             <span class="fs-4 num-mono text-white">{{ sistema.ram_percent }}%</span>
+                            <small class="text-white-50 text-end" style="font-size: 0.6rem; line-height: 1.1;">
+                                {{ sistema.ram_used }} de {{ sistema.ram_total }}GB
+                            </small>
                         </div>
                         <div class="progress bg-dark mt-1" style="height: 4px;">
-                            <div class="progress-bar {% if sistema.ram_percent > 95 %}bg-danger{% elif sistema.ram_percent > 75 %}bg-warning{% else %}bg-primary{% endif %}" style="width: {{ sistema.ram_percent }}%"></div>
+                            <div class="progress-bar {% if sistema.ram_percent > 90 %}bg-danger{% elif sistema.ram_percent > 75 %}bg-warning{% else %}bg-warning{% endif %}" style="width: {{ sistema.ram_percent }}%"></div>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-6">
-                    <div class="bg-black bg-opacity-25 p-2 rounded border border-secondary border-opacity-25">
-                        <span class="label-tech bi bi-fan text-secondary fs-6"> FAN</span>
+                    <div class="bg-black bg-opacity-25 p-2 rounded border border-secondary border-opacity-25 h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="label-tech bi bi-device-ssd text-secondary fs-6"> VRAM</span>
+                            <small class="text-white-50 font-monospace" style="font-size: 0.6rem;">DDR3 1800 Mhz</small>
+                        </div>
                         <div class="d-flex align-items-end justify-content-between">
-                            <span class="fs-4 num-mono text-white">{{ sistema.ram_percent }}rpm</span>
+                            <span class="fs-4 num-mono text-white">
+                                {% if sistema.gpu %}{{ sistema.gpu.vram_percent }}%{% else %}--{% endif %}
+                            </span>
+                            <small class="text-white-50 text-end" style="font-size: 0.6rem; line-height: 1.1;">
+                                {% if sistema.gpu %}{{ sistema.gpu.mem_used }}{% else %}--{% endif %} de  2.0GB
+                            </small>
                         </div>
                         <div class="progress bg-dark mt-1" style="height: 4px;">
-                            <div class="progress-bar {% if sistema.ram_percent > 95 %}bg-danger{% elif sistema.ram_percent > 75 %}bg-warning{% else %}bg-primary{% endif %}" style="width: {{ sistema.ram_percent }}%"></div>
+                            {% if sistema.gpu %}
+                                <div class="progress-bar {% if sistema.gpu.vram_percent > 90 %}bg-danger{% elif sistema.gpu.vram_percent > 70 %}bg-warning{% else %}bg-primary{% endif %}" style="width: {{ sistema.gpu.vram_percent }}%;"></div>
+                            {% else %}
+                                <div class="progress-bar bg-secondary" style="width: 100%; opacity: 0.2;"></div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
 
                 <div class="col-6">
                     <div class="bg-black bg-opacity-25 p-2 rounded border border-secondary border-opacity-25">
-                        <span class="label-tech bi bi-device-ssd-fill text-secondary fs-6"> SSD (C:)</span>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="label-tech bi bi-device-ssd-fill text-secondary fs-6"> SSD (C:)</span>
+                            <small class="text-white-50 font-monospace" style="font-size: 0.6rem;">WD Green 500 KB/s</small>
+                        </div>
                         <div class="d-flex align-items-end justify-content-between">
                             <span class="fs-4 num-mono text-white">{{ sistema.discos.0.percent }}%</span>
+                            <small class="text-white-50 font-monospace" style="font-size: 0.6rem;">466 GB</small>
                         </div>
                         <div class="progress bg-dark mt-1" style="height: 4px;">
                             <div class="progress-bar {% if sistema.discos.0.percent > 95 %}bg-danger{% elif sistema.discos.0.percent > 75 %}bg-warning{% else %}bg-primary{% endif %}" style="width: {{ sistema.discos.0.percent }}%"></div>
@@ -84,9 +117,13 @@
 
                 <div class="col-6">
                     <div class="bg-black bg-opacity-25 p-2 rounded border border-secondary border-opacity-25">
-                        <span class="label-tech bi bi-device-hdd-fill text-secondary fs-6"> HDD (D:)</span>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="label-tech bi bi-device-hdd-fill text-secondary fs-6"> HDD (D:)</span>
+                            <small class="text-white-50 font-monospace" style="font-size: 0.6rem;">Toshiba 100 KB/s</small>
+                        </div>
                         <div class="d-flex align-items-end justify-content-between">
                             <span class="fs-4 num-mono text-white">{{ sistema.discos.1.percent }}%</span>
+                            <small class="text-white-50 font-monospace" style="font-size: 0.6rem;">932 GB</small>
                         </div>
                         <div class="progress bg-dark mt-1" style="height: 4px;">
                             <div class="progress-bar {% if sistema.discos.1.percent > 95 %}bg-danger{% elif sistema.discos.1.percent > 75 %}bg-warning{% else %}bg-primary{% endif %}" style="width: {{ sistema.discos.1.percent }}%"></div>
@@ -100,6 +137,7 @@
                         <span class="label-tech bi bi-arrow-down-short text-secondary fs-6"> DOWNLOAD</span>
                         <div class="d-flex align-items-end justify-content-between">
                             <span class="fs-4 num-mono text-white">{{ sistema.rede.download_mbps }}Mpbs</span>
+                            <small class="text-white-50 font-monospace" style="font-size: 0.6rem;">100 Kbps</small>
                         </div>
                         <div class="progress bg-dark mt-1" style="height: 4px;">
                             <div class="progress-bar {% if sistema.rede.download_mbps > 95 %}bg-danger{% elif sistema.rede.download_mbps > 75 %}bg-warning{% else %}bg-primary{% endif %}" style="width: {{ sistema.rede.download_mbps }}%"></div>
@@ -112,6 +150,7 @@
                         <span class="label-tech bi bi-arrow-up-short text-secondary fs-6"> UPLOAD</span>
                         <div class="d-flex align-items-end justify-content-between">
                             <span class="fs-4 num-mono text-white">{{ sistema.rede.upload_mbps }}Mbps</span>
+                            <small class="text-white-50 font-monospace" style="font-size: 0.6rem;">100 Kbps</small>
                         </div>
                         <div class="progress bg-dark mt-1" style="height: 4px;">
                             <div class="progress-bar {% if sistema.rede.upload_mbps > 95 %}bg-danger{% elif sistema.rede.upload_mbps > 75 %}bg-warning{% else %}bg-primary{% endif %}" style="width: {{ sistema.rede.upload_mbps }}%"></div>
@@ -281,14 +320,15 @@
     <!-- COLUNA 3 -->
     <div class="d-flex flex-column gap-3">
         
-        <div class="glass-panel p-3 flex-grow-1 d-flex flex-column" style="border-left: 2px solid var(--neon-green);">
-            <span class="label-tech text-success mb-2">Mission Log</span>
+        <!-- CÉLULA 1: TASKS -->
+        <div class="glass-panel p-3 flex-grow-1 d-flex flex-column" style="border-left: 2px solid var(--neon-red);">
+            <span class="label-tech text-secondary mb-2">Tasks</span>
             
             <form hx-post="{% url 'adicionar_nota' %}" hx-target="#lista-notas-container" hx-on::after-request="this.reset()">
                 {% csrf_token %}
                 <div class="input-group mb-3">
                     <input type="text" name="texto" class="form-control bg-dark border-secondary text-white font-monospace" placeholder="Nova tarefa..." autocomplete="off">
-                    <button class="btn btn-outline-success" type="submit"><i class="bi bi-plus-lg"></i></button>
+                    <button class="btn btn-outline-danger" type="submit"><i class="bi bi-plus-lg"></i></button>
                 </div>
             </form>
 
@@ -297,25 +337,38 @@
             </div>
         </div>
 
-        <div class="glass-panel p-3" style="border-left: 2px solid var(--neon-yellow); min-height: 250px;">
-            <span class="label-tech text-warning mb-3">Market Watch</span>
-            <div class="d-flex flex-column gap-2">
+        <!-- CÉLULA 2: FINANÇAS -->
+        <div class="glass-panel p-3" style="border-left: 2px solid var(--neon-red); min-height: 250px;">
+            <span class="label-tech text-secondary mb-3 d-block">FINANÇAS</span>
+            
+            <div class="row g-2">
                 {% for moeda in cryptos|slice:":6" %}
-                <div class="d-flex align-items-center justify-content-between p-2 rounded bg-white bg-opacity-5 border border-white border-opacity-5">
-                    <div class="d-flex align-items-center">
-                        <img src="{{ moeda.image }}" width="24" class="rounded-circle me-2">
-                        <div>
-                            <span class="fw-bold d-block lh-1 small">{{ moeda.symbol|upper }}</span>
-                            <small class="text-secondary" style="font-size: 0.65rem;">{{ moeda.name }}</small>
+                <div class="col-6">
+                    <div class="d-flex align-items-center justify-content-between p-2 rounded bg-black bg-opacity-25 border border-white border-opacity-10 w-90 mx-auto">
+                        
+                        <div class="d-flex align-items-center overflow-hidden">
+                            <img src="{{ moeda.image }}" width="22" class="rounded-circle me-2 flex-shrink-0">
+                            <div class="text-truncate">
+                                <span class="fw-bold d-block lh-1 small text-white">{{ moeda.symbol|upper }}</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="text-end">
-                        <span class="d-block num-mono small">${{ moeda.current_price|floatformat:0 }}</span>
-                        {% if moeda.price_change_percentage_24h > 0 %}
-                            <small class="text-success num-mono">{{ moeda.price_change_percentage_24h|floatformat:1 }}%</small>
-                        {% else %}
-                            <small class="text-danger num-mono">{{ moeda.price_change_percentage_24h|floatformat:1 }}%</small>
-                        {% endif %}
+
+                        <div class="text-end ms-1">
+                            <span class="d-block num-mono small text-white-50" style="font-size: 0.8rem;">
+                                ${{ moeda.current_price|floatformat:0 }}
+                            </span>
+                            
+                            {% if moeda.price_change_percentage_24h > 0 %}
+                                <small class="text-success num-mono fw-bold" style="font-size: 0.7rem;">
+                                    <i class="bi bi-caret-up-fill" style="font-size: 0.6rem;"></i>{{ moeda.price_change_percentage_24h|floatformat:1 }}%
+                                </small>
+                            {% else %}
+                                <small class="text-danger num-mono fw-bold" style="font-size: 0.7rem;">
+                                    <i class="bi bi-caret-down-fill" style="font-size: 0.6rem;"></i>{{ moeda.price_change_percentage_24h|floatformat:1 }}%
+                                </small>
+                            {% endif %}
+                        </div>
+
                     </div>
                 </div>
                 {% endfor %}
