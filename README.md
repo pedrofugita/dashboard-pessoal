@@ -1,36 +1,44 @@
-# 📊 Dashboard Pessoal: Estudo de Arquitetura Server-Driven
+# 🚀 Personal Dashboard (Django)
 
-Este repositório documenta o desenvolvimento de um dashboard interativo focado em visualização de dados em tempo real. O projeto serve como um estudo de caso sobre **Arquitetura Server-Driven (UI Guiada pelo Servidor)**, utilizando o ecossistema Python para gerenciar tanto a lógica de negócios quanto a dinamicidade do frontend, eliminando a necessidade de Single Page Applications (SPAs) complexas.
+Um painel de controle pessoal e interativo desenvolvido com **Django** para monitoramento de hardware em tempo real, controle do Spotify e visualização de dados financeiros e climáticos.
 
-## 🎯 Objetivos do Projeto
+O projeto possui uma estética **Cyberpunk / Automotive** com tema escuro e elementos em vidro (Glassmorphism).
 
-1.  **Consumo de APIs Externas:** Integração com serviços públicos (ex: CoinGecko) para obtenção de dados financeiros e climáticos.
-2.  **Reatividade sem JavaScript Complexo:** Implementação de atualizações assíncronas usando **HTMX**.
-3.  **Design Responsivo Rápido:** Utilização de **Bootstrap 5** para prototipagem ágil de interface.
-4.  **Backend Robusto:** Uso do **Django** para orquestração de requisições e segurança.
+![Status](https://img.shields.io/badge/Status-Em_Desenvolvimento-yellow)
+![Python](https://img.shields.io/badge/Python-3.10+-blue)
+![Django](https://img.shields.io/badge/Django-4.0+-green)
 
-## 🏗️ Decisões de Arquitetura
+## 📸 Funcionalidades
 
-### 1. Backend: Django (Python)
-Optou-se pelo Django devido à sua arquitetura "Baterias Inclusas".
-* **Papel no projeto:** Ele atua como o orquestrador central. Em vez de apenas enviar JSON para o frontend (como faria uma API REST tradicional para React), o Django renderiza **fragmentos de HTML** prontos para serem injetados na página.
+### 🖥️ Monitoramento de Hardware (Em Tempo Real)
+- **CPU:** Uso (%), Frequência atual e Temperatura.
+- **GPU (NVIDIA):** Suporte nativo via `pynvml` e fallback via `nvidia-smi`. Monitora Carga, Memória (VRAM) e Temperatura.
+- **RAM:** Uso total, disponível e percentual.
+- **Armazenamento:** Monitoramento de partições (SSD/HDD).
+- **Rede:** Ping, Velocidade de Download/Upload e Nome da Rede (SSID).
 
-### 2. A Camada de "Tempo Real": HTMX vs WebSockets
-Para este dashboard, a estratégia de atualização escolhida foi **Polling (Sondagem)** via HTMX, em vez de WebSockets (Django Channels).
-* **Por que HTMX?** Permite que elementos HTML façam requisições HTTP diretamente. Isso mantém a lógica de estado no servidor (Python) e reduz drasticamente a quantidade de JavaScript escrito.
-* **Por que Polling?** Como as APIs externas gratuitas possuem limites de taxa (rate limits) e não oferecem WebSockets nativos, fazer o navegador perguntar "tem dados novos?" a cada X segundos é a abordagem mais eficiente e resiliente para este cenário.
+### 🎵 Integração com Spotify
+- Exibição da música atual, artista e capa do álbum.
+- **Controles Completos:** Play/Pause, Próxima, Anterior, Shuffle e Like/Unlike.
+- Barra de progresso sincronizada com a duração da música.
+- Autenticação via **OAuth2**.
 
-### 3. Frontend: Bootstrap 5
-Foco na estrutura de Grid System para criar um layout de painel (cards, sidebars) sem a necessidade de escrever CSS personalizado extenso.
+### 🌐 Dados Externos & Utilitários
+- **Clima:** Temperatura atual baseada na geolocalização (Open-Meteo API).
+- **Finanças:** Cotação do Dólar (USD/BRL) e Criptomoedas (Bitcoin, Ethereum, Solana, etc.) via CoinGecko.
+- **Bloco de Notas:** Sistema rápido para adicionar e remover lembretes.
 
 ---
 
-## 🛠️ Stack Tecnológico
+## 🛠️ Tecnologias Utilizadas
 
-| Componente | Tecnologia | Função |
-| :--- | :--- | :--- |
-| **Linguagem** | Python 3.10+ | Lógica principal |
-| **Framework Web** | Django 5.x | Servidor web e roteamento |
-| **Requisições HTTP** | Requests | Consumo de APIs externas |
-| **Frontend Dinâmico** | HTMX | AJAX e manipulação de DOM |
-| **Estilização** | Bootstrap 5 | UI/UX e Responsividade |
+- **Backend:** Python, Django
+- **Frontend:** HTML5, CSS3, Bootstrap 5 (Layout Responsivo)
+- **APIs & Bibliotecas:**
+  - `psutil` (Hardware Stats)
+  - `pynvml` & `nvidia-smi` (NVIDIA GPU Stats)
+  - `spotipy` (Spotify API)
+  - `requests` (APIs REST externas)
+  - `pyautogui` (Controle de Volume do Sistema)
+
+---
