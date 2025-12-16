@@ -1,4 +1,4 @@
-# 🚀 Personal Dashboard (Django)
+# 🚀 Personal Dashboard
 
 Um painel de controle pessoal e interativo desenvolvido com **Django** para monitoramento de hardware em tempo real, controle do Spotify e visualização de dados financeiros e climáticos.
 
@@ -42,3 +42,5 @@ O projeto possui uma estética **Cyberpunk / Automotive** com tema escuro e elem
   - `pyautogui` (Controle de Volume do Sistema)
 
 ---
+
+Desenvolvido por Pedro Fugita
